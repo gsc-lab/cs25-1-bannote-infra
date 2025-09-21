@@ -16,6 +16,15 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
+      # Terraform Cloud에 로그인하기 위한 설정
+      - name: Configure Terraform Cloud credentials
+        run: |
+          cat > ~/.terraformrc <<EOF
+          credentials "app.terraform.io" {
+          token = "${{ secrets.TF_API_TOKEN_BANNOTE_SERVER }}"
+          }
+          EOF
+
       # LXD 상태 확인 (미리 설치 후 lxd 그룹에 추가 필요)
       - name: Check LXD availability
         run: |
