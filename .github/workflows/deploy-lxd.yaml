@@ -62,7 +62,16 @@ jobs:
         working-directory: ./lxd-infra
         env:
           TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_INPUT: false
+          TF_CLI_ARGS: "-no-color"
         run: |
+          # Set Terraform Cloud workspace based on environment
+          WORKSPACE_NAME="bannote-server-${{ env.ENV }}"
+          echo "Using Terraform workspace: $WORKSPACE_NAME"
+
+          # Export TF_WORKSPACE to automatically select workspace during init
+          export TF_WORKSPACE=$WORKSPACE_NAME
+
           terraform init
           terraform apply -auto-approve -var="environment=${{ env.ENV }}"
 

@@ -1,15 +1,15 @@
-terraform { 
-  cloud { 
-    
-    organization = "bannote" 
+terraform {
+  cloud {
+    organization = "bannote"
 
-    workspaces { 
-      name = "bannote-server" 
-    } 
-  } 
+    # 동적 workspace 선택을 위해 tags 사용
+    workspaces {
+      tags = ["bannote-server"]
+    }
+  }
 }
 
-# 깃허브 액션스에서 받은 변수에 따라 생성할 클러스터 목록을 필터링합니다.
+# 깃허브 액션스에서 받은 변수에 따라 생성할 클러스터 목록을 필터링
 locals {
   target_clusters = {
     for key, cluster in var.clusters : key => cluster
