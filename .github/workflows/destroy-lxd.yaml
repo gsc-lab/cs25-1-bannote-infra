@@ -52,6 +52,15 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
+      # Terraform Cloud에 로그인하기 위한 설정
+      - name: Configure Terraform Cloud credentials
+        run: |
+          cat > ~/.terraformrc <<EOF
+          credentials "app.terraform.io" {
+          token = "${{ secrets.TF_API_TOKEN_BANNOTE_SERVER }}"
+          }
+          EOF
+
       - name: Check LXD availability
         run: |
           echo "Checking if LXD is available..."
@@ -74,6 +83,7 @@ jobs:
         run: |
           echo "ENV=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
           echo "TARGET_VMS=${{ github.event.inputs.target_vms }}" >> $GITHUB_ENV
+          echo "WORKSPACE_NAME=bannote-server-${{ github.event.inputs.environment }}" >> $GITHUB_ENV
 
       - name: Show what will be destroyed
         run: |
@@ -96,17 +106,32 @@ jobs:
 
       - name: Terraform Init
         working-directory: ./lxd-infra
-        run: terraform init
+        env:
+          TF_INPUT: false
+          TF_CLI_ARGS: "-no-color"
+        run: |
+          echo "Using Terraform workspace: ${{ env.WORKSPACE_NAME }}"
+          export TF_WORKSPACE=${{ env.WORKSPACE_NAME }}
+          terraform init
 
       - name: List current resources
         working-directory: ./lxd-infra
+        env:
+          TF_INPUT: false
         run: |
           echo "📋 Current Terraform state:"
+          export TF_WORKSPACE=${{ env.WORKSPACE_NAME }}
           terraform show -no-color || echo "No state file found"
 
       - name: Selective Destroy
         working-directory: ./lxd-infra
+        env:
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_INPUT: false
+          TF_CLI_ARGS: "-no-color"
         run: |
+          export TF_WORKSPACE=${{ env.WORKSPACE_NAME }}
+
           if [[ "${{ env.TARGET_VMS }}" == "all" || "${{ env.TARGET_VMS }}" == "" ]]; then
             echo "🔥 Destroying all VMs for environment: ${{ env.ENV }}"
             terraform destroy -auto-approve -var="environment=${{ env.ENV }}"
@@ -127,8 +152,11 @@ jobs:
 
       - name: Verify destruction
         working-directory: ./lxd-infra
+        env:
+          TF_INPUT: false
         run: |
           echo "✅ Destruction completed. Current state:"
+          export TF_WORKSPACE=${{ env.WORKSPACE_NAME }}
           terraform show -no-color || echo "No resources remaining"
 
       - name: Cleanup notification
