@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Target environment to destroy'
+        description: "Target environment to destroy"
         required: true
         type: choice
         options:
@@ -15,7 +15,7 @@ on:
         required: true
         type: string
       target_vms:
-        description: 'Which VMs to destroy (optional - destroys all if empty)'
+        description: "Which VMs to destroy (optional - destroys all if empty)"
         required: false
         type: choice
         options:
@@ -51,6 +51,16 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
+
+      - name: Check LXD availability
+        run: |
+          echo "Checking if LXD is available..."
+          if ! command -v lxc &> /dev/null; then
+            echo "❌ LXD not found. Please install LXD on the runner server first."
+            exit 1
+          fi
+          echo "✅ LXD found"
+          lxc version
 
       - name: Set environment variables
         run: |

@@ -16,16 +16,18 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      # LXD 설치
-      - name: Setup LXD if not installed
+      # LXD 상태 확인 (미리 설치 후 lxd 그룹에 추가 필요)
+      - name: Check LXD availability
         run: |
-          if ! command -v lxd &> /dev/null; then
-            echo "LXD not found. Installing LXD via snap..."
-            sudo snap install lxd --channel=latest/stable
-            sudo lxd init --auto
-            sudo usermod -a -G lxd $USER
-            newgrp lxd
+          echo "Checking if LXD is available..."
+          if ! command -v lxc &> /dev/null; then
+            echo "❌ LXD not found. Please install LXD on the runner server:"
+            exit 1
           fi
+
+          echo "✅ LXD found. Testing access..."
+          lxc version
+          lxc list
         shell: bash
 
       - name: Set Terraform branch variable
