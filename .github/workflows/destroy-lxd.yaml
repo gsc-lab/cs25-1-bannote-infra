@@ -56,11 +56,19 @@ jobs:
         run: |
           echo "Checking if LXD is available..."
           if ! command -v lxc &> /dev/null; then
-            echo "❌ LXD not found. Please install LXD on the runner server first."
+            echo "❌ LXD command not found. Please install LXD."
             exit 1
           fi
-          echo "✅ LXD found"
-          lxc version
+
+          echo "Testing LXD access..."
+          if ! lxc_output=$(lxc version 2>&1); then
+            echo "❌ LXD is not accessible. See error below:"
+            echo "$lxc_output"
+            exit 1
+          fi
+
+          echo "✅ LXD is available."
+          echo "$lxc_output"
 
       - name: Set environment variables
         run: |
