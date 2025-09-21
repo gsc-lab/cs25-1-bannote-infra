@@ -18,8 +18,3 @@ resource "lxd_instance" "cluster_vms" {
     memory = each.value.memory_limit
   }
 }
-
-# VM의 IP 주소를 출력
-output "vm_ips" {
-  value = { for name, instance in lxd_instance.cluster_vms : name => instance.network_interface[0].ipv4_address }
-}
