@@ -58,6 +58,9 @@ jobs:
           elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
             echo "ENV=dev" >> $GITHUB_ENV
             echo "WORKSPACE_NAME=bannote-server-dev" >> $GITHUB_ENV
+          else
+            echo "Error: Deploy workflow must be run from 'main' or 'dev' branch."
+            exit 1
           fi
 
       - name: Terraform Apply

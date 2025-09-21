@@ -77,14 +77,15 @@ jobs:
           # Determine ENV from branch name
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "ENV=main" >> $GITHUB_ENV
+            echo "WORKSPACE_NAME=bannote-server-main" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
             echo "ENV=dev" >> $GITHUB_ENV
+            echo "WORKSPACE_NAME=bannote-server-dev" >> $GITHUB_ENV
           else
             echo "Error: Destroy workflow must be run from 'main' or 'dev' branch."
             exit 1
           fi
           echo "TARGET_VMS=${{ github.event.inputs.target_vms }}" >> $GITHUB_ENV
-          echo "WORKSPACE_NAME=bannote-server-${{ env.ENV }}" >> $GITHUB_ENV
 
       - name: Show what will be destroyed
         run: |
