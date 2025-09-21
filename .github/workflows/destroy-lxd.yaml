@@ -3,13 +3,6 @@ name: Destroy LXD Infrastructure
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: "Target environment to destroy"
-        required: true
-        type: choice
-        options:
-          - main
-          - dev
       confirm_destroy:
         description: 'Type "DESTROY" to confirm (case sensitive)'
         required: true
@@ -81,9 +74,17 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "ENV=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+          # Determine ENV from branch name
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "ENV=main" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            echo "ENV=dev" >> $GITHUB_ENV
+          else
+            echo "Error: Destroy workflow must be run from 'main' or 'dev' branch."
+            exit 1
+          fi
           echo "TARGET_VMS=${{ github.event.inputs.target_vms }}" >> $GITHUB_ENV
-          echo "WORKSPACE_NAME=bannote-server-${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+          echo "WORKSPACE_NAME=bannote-server-${{ env.ENV }}" >> $GITHUB_ENV
 
       - name: Show what will be destroyed
         run: |
