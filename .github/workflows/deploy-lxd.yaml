@@ -1,0 +1,71 @@
+name: Deploy LXD Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - "lxd-infra/**"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+
+      # 테라폼 설치
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      # Terraform Cloud에 로그인하기 위한 설정
+      - name: Configure Terraform Cloud credentials
+        run: |
+          cat > ~/.terraformrc <<EOF
+          credentials "app.terraform.io" {
+          token = "${{ secrets.TF_API_TOKEN_BANNOTE_SERVER }}"
+          }
+          EOF
+
+      # LXD 상태 확인 (미리 설치 후 lxd 그룹에 추가 필요)
+      - name: Check LXD availability
+        run: |
+          echo "Checking if LXD is available..."
+          if ! command -v lxc &> /dev/null; then
+            echo "❌ LXD command not found. Please install LXD."
+            exit 1
+          fi
+
+          echo "Testing LXD access..."
+          if ! lxc_output=$(lxc version 2>&1); then
+            echo "❌ LXD is not accessible. See error below:"
+            echo "$lxc_output"
+            exit 1
+          fi
+
+          echo "✅ LXD is available."
+          echo "$lxc_output"
+          lxc list
+        shell: bash
+
+      - name: Set Terraform branch variable
+        id: set_env
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "ENV=main" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            echo "ENV=dev" >> $GITHUB_ENV
+          fi
+
+      - name: Terraform Apply
+        working-directory: ./lxd-infra
+        env:
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+        run: |
+          terraform init
+          terraform apply -auto-approve -var="environment=${{ env.ENV }}"
+
+      - name: Show Terraform Outputs
+        working-directory: ./lxd-infra
+        run: terraform output instance_ips

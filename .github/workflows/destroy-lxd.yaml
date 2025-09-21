@@ -1,0 +1,139 @@
+name: Destroy LXD Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment to destroy"
+        required: true
+        type: choice
+        options:
+          - main
+          - dev
+      confirm_destroy:
+        description: 'Type "DESTROY" to confirm (case sensitive)'
+        required: true
+        type: string
+      target_vms:
+        description: "Which VMs to destroy (optional - destroys all if empty)"
+        required: false
+        type: choice
+        options:
+          - all
+          - prod-only
+          - stg-only
+          - dev-only
+
+jobs:
+  validate:
+    runs-on: self-hosted
+    outputs:
+      should_proceed: ${{ steps.validation.outputs.should_proceed }}
+    steps:
+      - name: Validate confirmation
+        id: validation
+        run: |
+          if [[ "${{ github.event.inputs.confirm_destroy }}" == "DESTROY" ]]; then
+            echo "should_proceed=true" >> $GITHUB_OUTPUT
+            echo "✅ Confirmation validated"
+          else
+            echo "should_proceed=false" >> $GITHUB_OUTPUT
+            echo "❌ Invalid confirmation. You must type 'DESTROY' exactly."
+            exit 1
+          fi
+
+  destroy:
+    needs: validate
+    runs-on: self-hosted
+    if: needs.validate.outputs.should_proceed == 'true'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Check LXD availability
+        run: |
+          echo "Checking if LXD is available..."
+          if ! command -v lxc &> /dev/null; then
+            echo "❌ LXD command not found. Please install LXD."
+            exit 1
+          fi
+
+          echo "Testing LXD access..."
+          if ! lxc_output=$(lxc version 2>&1); then
+            echo "❌ LXD is not accessible. See error below:"
+            echo "$lxc_output"
+            exit 1
+          fi
+
+          echo "✅ LXD is available."
+          echo "$lxc_output"
+
+      - name: Set environment variables
+        run: |
+          echo "ENV=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+          echo "TARGET_VMS=${{ github.event.inputs.target_vms }}" >> $GITHUB_ENV
+
+      - name: Show what will be destroyed
+        run: |
+          echo "🔥 About to destroy the following:"
+          echo "Environment: ${{ env.ENV }}"
+          echo "Target VMs: ${{ env.TARGET_VMS }}"
+          echo ""
+          echo "This will destroy:"
+          if [[ "${{ env.TARGET_VMS }}" == "all" || "${{ env.TARGET_VMS }}" == "" ]]; then
+            echo "- bannote-${{ env.ENV }}-prod"
+            echo "- bannote-${{ env.ENV }}-stg"
+            echo "- bannote-${{ env.ENV }}-dev"
+          elif [[ "${{ env.TARGET_VMS }}" == "prod-only" ]]; then
+            echo "- bannote-${{ env.ENV }}-prod"
+          elif [[ "${{ env.TARGET_VMS }}" == "stg-only" ]]; then
+            echo "- bannote-${{ env.ENV }}-stg"
+          elif [[ "${{ env.TARGET_VMS }}" == "dev-only" ]]; then
+            echo "- bannote-${{ env.ENV }}-dev"
+          fi
+
+      - name: Terraform Init
+        working-directory: ./lxd-infra
+        run: terraform init
+
+      - name: List current resources
+        working-directory: ./lxd-infra
+        run: |
+          echo "📋 Current Terraform state:"
+          terraform show -no-color || echo "No state file found"
+
+      - name: Selective Destroy
+        working-directory: ./lxd-infra
+        run: |
+          if [[ "${{ env.TARGET_VMS }}" == "all" || "${{ env.TARGET_VMS }}" == "" ]]; then
+            echo "🔥 Destroying all VMs for environment: ${{ env.ENV }}"
+            terraform destroy -auto-approve -var="environment=${{ env.ENV }}"
+          else
+            echo "🔥 Destroying specific VMs: ${{ env.TARGET_VMS }}"
+            case "${{ env.TARGET_VMS }}" in
+              "prod-only")
+                terraform destroy -auto-approve -target="lxd_instance.cluster_vms[\"bannote-${{ env.ENV }}-prod\"]" -var="environment=${{ env.ENV }}"
+                ;;
+              "stg-only")
+                terraform destroy -auto-approve -target="lxd_instance.cluster_vms[\"bannote-${{ env.ENV }}-stg\"]" -var="environment=${{ env.ENV }}"
+                ;;
+              "dev-only")
+                terraform destroy -auto-approve -target="lxd_instance.cluster_vms[\"bannote-${{ env.ENV }}-dev\"]" -var="environment=${{ env.ENV }}"
+                ;;
+            esac
+          fi
+
+      - name: Verify destruction
+        working-directory: ./lxd-infra
+        run: |
+          echo "✅ Destruction completed. Current state:"
+          terraform show -no-color || echo "No resources remaining"
+
+      - name: Cleanup notification
+        run: |
+          echo "🎉 Infrastructure cleanup completed!"
+          echo "Environment: ${{ env.ENV }}"
+          echo "Destroyed: ${{ env.TARGET_VMS }}"
+          echo "Timestamp: $(date)"
