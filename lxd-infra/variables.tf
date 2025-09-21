@@ -3,6 +3,12 @@ variable "environment" {
   type        = string
 }
 
+variable "ssh_public_key" {
+  description = "The SSH public key for the default user"
+  type        = string
+  sensitive   = true
+}
+
 variable "clusters" {
   type = map(object({
     name         = string

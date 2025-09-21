@@ -28,4 +28,18 @@ resource "lxd_instance" "cluster_vms" {
     cpu = each.value.cpu_limit
     memory = each.value.memory_limit
   }
+
+  config = {
+    "cloud-init.user-data" = <<-EOF
+#cloud-config
+users:
+  - name: bannote
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh_authorized_keys:
+      - ${var.ssh_public_key}
+EOF
+  }
 }
+
