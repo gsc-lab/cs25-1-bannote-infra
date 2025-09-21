@@ -1,0 +1,44 @@
+name: Deploy LXD Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+
+      # 테라폼 설치
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      # LXD 설치
+      - name: Setup LXD if not installed
+        run: |
+          if ! command -v lxd &> /dev/null; then
+            echo "LXD not found. Installing LXD via snap..."
+            sudo snap install lxd --channel=latest/stable
+            sudo lxd init --auto
+            sudo usermod -a -G lxd $USER
+            newgrp lxd
+          fi
+        shell: bash
+
+      - name: Set Terraform branch variable
+        id: set_env
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "ENV=main" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            echo "ENV=dev" >> $GITHUB_ENV
+          fi
+
+      - name: Terraform Apply
+        working-directory: ./lxd-infra
+        run: |
+          terraform init
+          terraform apply -auto-approve -var="environment=${{ env.ENV }}"
