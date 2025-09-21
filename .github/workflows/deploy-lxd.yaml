@@ -49,13 +49,15 @@ jobs:
           lxc list
         shell: bash
 
-      - name: Set Terraform branch variable
+      - name: Set Terraform environment variables
         id: set_env
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "ENV=main" >> $GITHUB_ENV
+            echo "WORKSPACE_NAME=bannote-server-main" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
             echo "ENV=dev" >> $GITHUB_ENV
+            echo "WORKSPACE_NAME=bannote-server-dev" >> $GITHUB_ENV
           fi
 
       - name: Terraform Apply
@@ -65,16 +67,20 @@ jobs:
           TF_INPUT: false
           TF_CLI_ARGS: "-no-color"
         run: |
-          # Set Terraform Cloud workspace based on environment
-          WORKSPACE_NAME="bannote-server-${{ env.ENV }}"
-          echo "Using Terraform workspace: $WORKSPACE_NAME"
+          echo "Using Terraform workspace: ${{ env.WORKSPACE_NAME }}"
 
           # Export TF_WORKSPACE to automatically select workspace during init
-          export TF_WORKSPACE=$WORKSPACE_NAME
+          export TF_WORKSPACE=${{ env.WORKSPACE_NAME }}
 
           terraform init
           terraform apply -auto-approve -var="environment=${{ env.ENV }}"
 
       - name: Show Terraform Outputs
         working-directory: ./lxd-infra
-        run: terraform output instance_ips
+        env:
+          TF_INPUT: false
+        run: |
+          echo "Getting outputs from workspace: ${{ env.WORKSPACE_NAME }}"
+          export TF_WORKSPACE=${{ env.WORKSPACE_NAME }}
+
+          terraform output instance_ips
