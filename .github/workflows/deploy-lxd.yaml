@@ -100,10 +100,10 @@ jobs:
         working-directory: ./lxd-infra
         run: |
           echo "Checking generated Ansible inventory file..."
-          if [ -f "inventory-${{ env.ENV }}" ]; then
+          if [ -f "~/inventory/inventory-${{ env.ENV }}" ]; then
             echo "✅ Ansible inventory file created: inventory-${{ env.ENV }}"
             echo "Contents:"
-            cat inventory-${{ env.ENV }}
+            cat ~/inventory/inventory-${{ env.ENV }}
           else
             echo "❌ Ansible inventory file not found"
             exit 1
