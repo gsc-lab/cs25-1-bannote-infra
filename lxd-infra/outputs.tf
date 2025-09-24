@@ -5,3 +5,16 @@ output "instance_ips" {
   }
   sensitive = true
 }
+
+resource "local_file" "ansible_inventory" {
+  content = templatefile("${path.module}/templates/inventory.tftpl", {
+    instance_ips = { for k, v in lxd_instance.cluster_vms : k => v.ipv4_address }
+    env = var.environment
+  })
+  filename = "${path.module}/inventory-${var.environment}"
+}
+
+output "inventory_file" {
+  description = "Path to the generated Ansible inventory file"
+  value = local_file.ansible_inventory.filename
+}

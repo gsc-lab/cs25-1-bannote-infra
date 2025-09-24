@@ -87,3 +87,24 @@ jobs:
           export TF_WORKSPACE=${{ env.WORKSPACE_NAME }}
 
           terraform output instance_ips
+
+      - name: Setup SSH key for Ansible
+        run: |
+          echo "Setting up SSH key for Ansible..."
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "✅ SSH key configured"
+
+      - name: Verify Ansible inventory file
+        working-directory: ./lxd-infra
+        run: |
+          echo "Checking generated Ansible inventory file..."
+          if [ -f "inventory-${{ env.ENV }}" ]; then
+            echo "✅ Ansible inventory file created: inventory-${{ env.ENV }}"
+            echo "Contents:"
+            cat inventory-${{ env.ENV }}
+          else
+            echo "❌ Ansible inventory file not found"
+            exit 1
+          fi
