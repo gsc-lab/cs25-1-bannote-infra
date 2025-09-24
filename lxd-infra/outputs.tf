@@ -11,7 +11,7 @@ resource "local_file" "ansible_inventory" {
     instance_ips = { for k, v in lxd_instance.cluster_vms : k => v.ipv4_address }
     env = var.environment
   })
-  filename = "~/inventory/inventory-${var.environment}"
+  filename = "${pathexpand("~")}/inventory/inventory-${var.environment}"
 }
 
 output "inventory_file" {

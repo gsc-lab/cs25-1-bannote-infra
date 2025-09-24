@@ -63,6 +63,11 @@ jobs:
             exit 1
           fi
 
+      - name: Create inventory directory
+        run: |
+          mkdir -p ~/inventory
+          echo "✅ Created inventory directory at ~/inventory"
+
       - name: Terraform Apply
         working-directory: ./lxd-infra
         env:
@@ -97,14 +102,18 @@ jobs:
           echo "✅ SSH key configured"
 
       - name: Verify Ansible inventory file
-        working-directory: ./lxd-infra
         run: |
           echo "Checking generated Ansible inventory file..."
-          if [ -f "~/inventory/inventory-${{ env.ENV }}" ]; then
+          INVENTORY_PATH="$HOME/inventory/inventory-${{ env.ENV }}"
+          echo "Looking for file at: $INVENTORY_PATH"
+
+          if [ -f "$INVENTORY_PATH" ]; then
             echo "✅ Ansible inventory file created: inventory-${{ env.ENV }}"
             echo "Contents:"
-            cat ~/inventory/inventory-${{ env.ENV }}
+            cat "$INVENTORY_PATH"
           else
-            echo "❌ Ansible inventory file not found"
+            echo "❌ Ansible inventory file not found at $INVENTORY_PATH"
+            echo "Contents of ~/inventory/:"
+            ls -la ~/inventory/ || echo "Directory ~/inventory/ does not exist"
             exit 1
           fi
