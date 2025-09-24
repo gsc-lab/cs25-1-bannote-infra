@@ -117,3 +117,34 @@ jobs:
             ls -la ~/inventory/ || echo "Directory ~/inventory/ does not exist"
             exit 1
           fi
+
+      - name: Test Ansible connectivity
+        run: |
+          echo "Testing Ansible connectivity to LXD instances..."
+          INVENTORY_PATH="$HOME/inventory/inventory-${{ env.ENV }}"
+
+          echo "Waiting for instances to be ready..."
+          sleep 30
+
+          echo "Testing SSH connectivity with Ansible ping..."
+          ansible all -i "$INVENTORY_PATH" -m ping --timeout=30 || {
+            echo "❌ Ansible ping failed. Trying individual hosts for debugging..."
+            ansible all -i "$INVENTORY_PATH" -m ping --timeout=30 -vvv
+            exit 1
+          }
+
+          echo "✅ All LXD instances are accessible via Ansible!"
+
+      - name: Install Ansible requirements
+        run: |
+          echo "Installing Ansible collection requirements..."
+          ansible-galaxy collection install kubernetes.core community.general --force
+
+      - name: Run basic system info gathering
+        run: |
+          echo "Gathering system information from all hosts..."
+          INVENTORY_PATH="$HOME/inventory/inventory-${{ env.ENV }}"
+
+          ansible all -i "$INVENTORY_PATH" -m setup -a "filter=ansible_distribution*,ansible_memory_mb,ansible_processor_cores" | head -50
+
+          echo "✅ System info gathering completed!"
