@@ -3,9 +3,14 @@
   hosts: all
   become: true
   tasks:
+    - name: Check if k3s is already installed
+      stat:
+        path: /usr/local/bin/k3s
+      register: k3s_exists
+
     - name: Install k3s
       shell: curl -sfL https://get.k3s.io | sh -
-      creates: /usr/local/bin/k3s
+      when: not k3s_exists.stat.exists
 
     - name: Wait for k3s to be ready
       wait_for:
