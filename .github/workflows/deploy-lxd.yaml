@@ -8,6 +8,7 @@ on:
     paths:
       - "lxd-infra/**"
       - "ansible/**"
+      - ".github/workflows/deploy-lxd.yaml"
   workflow_dispatch:
 
 jobs:

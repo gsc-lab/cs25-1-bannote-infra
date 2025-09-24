@@ -25,8 +25,29 @@
         state: started
         enabled: yes
 
-    - name: Get nodes
+    - name: Create .kube directory for user
+      file:
+        path: /home/bannote/.kube
+        state: directory
+        owner: bannote
+        group: bannote
+        mode: "0755"
+
+    - name: Copy kubeconfig to user home
+      copy:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: /home/bannote/.kube/config
+        owner: bannote
+        group: bannote
+        mode: "0644"
+        remote_src: yes
+
+    - name: Get nodes (as user)
       shell: kubectl get nodes
+      become: false
+      become_user: bannote
+      environment:
+        KUBECONFIG: /home/bannote/.kube/config
       register: nodes_output
 
     - name: Display nodes
