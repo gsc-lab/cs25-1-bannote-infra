@@ -7,6 +7,7 @@ on:
       - dev
     paths:
       - "lxd-infra/**"
+      - "ansible/**"
   workflow_dispatch:
 
 jobs:
@@ -148,3 +149,13 @@ jobs:
           ansible all -i "$INVENTORY_PATH" -m setup -a "filter=ansible_distribution*,ansible_memory_mb,ansible_processor_cores" | head -50
 
           echo "✅ System info gathering completed!"
+
+      - name: Install k3s on LXD instances
+        run: |
+          echo "Installing k3s on all instances..."
+          INVENTORY_PATH="$HOME/inventory/inventory-${{ env.ENV }}"
+
+          cd ansible
+          ansible-playbook -i "$INVENTORY_PATH" playbooks/install-k3s.yml
+
+          echo "✅ k3s installation completed!"
