@@ -101,25 +101,6 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           echo "✅ SSH key configured"
 
-      - name: Debug inventory file issue
-        run: |
-          INVENTORY_PATH="$HOME/inventory/inventory-${{ env.ENV }}"
-          echo "INVENTORY_PATH variable contains: '$INVENTORY_PATH'"
-          echo "File test results:"
-          echo "  -f (regular file): $([ -f "$INVENTORY_PATH" ] && echo 'true' || echo 'false')"
-          echo "  -e (exists): $([ -e "$INVENTORY_PATH" ] && echo 'true' || echo 'false')"
-          echo "  -r (readable): $([ -r "$INVENTORY_PATH" ] && echo 'true' || echo 'false')"
-
-          if [ -e "$INVENTORY_PATH" ]; then
-            echo "File details:"
-            ls -la "$INVENTORY_PATH"
-            echo "File type:"
-            file "$INVENTORY_PATH"
-          fi
-
-          echo "Direct cat attempt:"
-          cat "$INVENTORY_PATH" || echo "Cat failed with exit code: $?"
-
       - name: Verify Ansible inventory file
         run: |
           echo "Checking generated Ansible inventory file..."

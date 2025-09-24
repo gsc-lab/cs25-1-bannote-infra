@@ -12,6 +12,7 @@ resource "local_file" "ansible_inventory" {
     env = var.environment
   })
   filename = "${pathexpand("~")}/inventory/inventory-${var.environment}"
+  file_permission = "0644"
 }
 
 output "inventory_file" {
