@@ -85,16 +85,6 @@ jobs:
           terraform init
           terraform apply -auto-approve -var="environment=${{ env.ENV }}"
 
-      - name: Show Terraform Outputs
-        working-directory: ./lxd-infra
-        env:
-          TF_INPUT: false
-        run: |
-          echo "Getting outputs from workspace: ${{ env.WORKSPACE_NAME }}"
-          export TF_WORKSPACE=${{ env.WORKSPACE_NAME }}
-
-          terraform output instance_ips
-
       - name: Setup SSH key for Ansible
         run: |
           echo "Setting up SSH key for Ansible..."
@@ -157,6 +147,6 @@ jobs:
           INVENTORY_PATH="$HOME/inventory/inventory-${{ env.ENV }}"
 
           cd ansible
-          ansible-playbook -i "$INVENTORY_PATH" playbooks/install-k3s.yml
+          ansible-playbook -i "$INVENTORY_PATH" playbooks/install-k3s.yaml
 
           echo "✅ k3s installation completed!"
