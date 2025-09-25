@@ -8,6 +8,7 @@
     github_owner: "{{ github_repo_owner }}"
     github_repo: "{{ github_repo_name }}"
     runner_token: "{{ runner_provisioning_pat }}"
+    environment_label: "{{ environment }}"
 
   tasks:
     - name: Install prerequisite packages
@@ -16,6 +17,7 @@
           - curl
           - jq
           - tar
+          - unzip
           - libssl-dev
           - libffi-dev
           - python3-dev
@@ -71,6 +73,7 @@
                     --token {{ registration_response.json.token }} \
                     --name {{ ansible_hostname }}-runner \
                     --work _work \
+                    --labels {{ environment_label }},lxd \
                     --unattended \
                     --replace
       args:
