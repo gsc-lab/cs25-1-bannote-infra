@@ -8,6 +8,9 @@ on:
       - "lxd-infra/**"
       - "ansible/**"
       - ".github/workflows/deploy-lxd.yaml"
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -56,11 +59,19 @@ jobs:
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "ENV=main" >> $GITHUB_ENV
             echo "WORKSPACE_NAME=bannote-server-main" >> $GITHUB_ENV
-          elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+          elif [[ "${{ github.ref }}" == "refs/heads/dev" ]] || [[ "${{ github.head_ref }}" == "dev" ]]; then
             echo "ENV=dev" >> $GITHUB_ENV
             echo "WORKSPACE_NAME=bannote-server-dev" >> $GITHUB_ENV
+          elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "main" ]]; then
+            echo "ENV=dev" >> $GITHUB_ENV
+            echo "WORKSPACE_NAME=bannote-server-dev" >> $GITHUB_ENV
+            echo "Running PR validation using dev environment"
           else
-            echo "Error: Deploy workflow must be run from 'main' or 'dev' branch."
+            echo "Error: Deploy workflow must be run from 'main' or 'dev' branch, or as PR to main."
+            echo "github.ref: ${{ github.ref }}"
+            echo "github.head_ref: ${{ github.head_ref }}"
+            echo "github.base_ref: ${{ github.base_ref }}"
+            echo "github.event_name: ${{ github.event_name }}"
             exit 1
           fi
 
