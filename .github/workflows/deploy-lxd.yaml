@@ -146,7 +146,15 @@ jobs:
           echo "Installing k3s on all instances..."
           INVENTORY_PATH="$HOME/inventory/inventory-${{ env.ENV }}"
 
-          cd ansible
-          ansible-playbook -i "$INVENTORY_PATH" playbooks/install-k3s.yaml
+          ansible-playbook -i "$INVENTORY_PATH" ansible/playbooks/install-k3s.yaml
 
           echo "✅ k3s installation completed!"
+
+      - name: Install Terraform on LXD instances
+        run: |
+          echo "Installing Terraform on all instances..."
+          INVENTORY_PATH="$HOME/inventory/inventory-${{ env.ENV }}"
+
+          ansible-playbook -i "$INVENTORY_PATH" ansible/playbooks/install-terraform.yaml
+
+          echo "✅ Terraform installation completed!"

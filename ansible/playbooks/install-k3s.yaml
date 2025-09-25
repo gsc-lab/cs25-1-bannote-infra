@@ -42,6 +42,15 @@
         mode: "0644"
         remote_src: yes
 
+    - name: Set KUBECONFIG environment variable in .bashrc
+      lineinfile:
+        path: /home/bannote/.bashrc
+        line: "export KUBECONFIG=$HOME/.kube/config"
+        create: yes
+        owner: bannote
+        group: bannote
+        mode: "0644"
+
     - name: Get nodes (as user)
       shell: kubectl get nodes
       become: false
