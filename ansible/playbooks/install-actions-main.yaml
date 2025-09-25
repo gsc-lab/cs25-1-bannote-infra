@@ -1,5 +1,5 @@
 ---
-- name: Install GitHub Actions Self-hosted Runner
+- name: Install GitHub Actions Self-hosted Runner (Main)
   hosts: all
   become: true
   vars:
@@ -8,7 +8,6 @@
     github_owner: "{{ github_repo_owner }}"
     github_repo: "{{ github_repo_name }}"
     runner_token: "{{ runner_provisioning_pat }}"
-    environment_label: "{{ environment }}"
 
   tasks:
     - name: Install prerequisite packages
@@ -71,9 +70,9 @@
         cd {{ runner_dir }}
         sudo -u {{ runner_user }} ./config.sh --url https://github.com/{{ github_owner }}/{{ github_repo }} \
                     --token {{ registration_response.json.token }} \
-                    --name {{ ansible_hostname }}-runner \
+                    --name {{ ansible_hostname }}-runner-main \
                     --work _work \
-                    --labels {{ environment_label }},lxd \
+                    --labels main,lxd \
                     --unattended \
                     --replace
       args:
@@ -94,13 +93,13 @@
 
     - name: Enable runner service for auto-start
       systemd:
-        name: "actions.runner.{{ github_owner }}-{{ github_repo }}.{{ ansible_hostname }}-runner.service"
+        name: "actions.runner.{{ github_owner }}-{{ github_repo }}.{{ ansible_hostname }}-runner-main.service"
         state: started
         enabled: yes
         daemon_reload: yes
 
     - name: Verify runner service status
-      shell: systemctl status actions.runner.{{ github_owner }}-{{ github_repo }}.{{ ansible_hostname }}-runner.service
+      shell: systemctl status actions.runner.{{ github_owner }}-{{ github_repo }}.{{ ansible_hostname }}-runner-main.service
       register: service_status
       failed_when: false
 

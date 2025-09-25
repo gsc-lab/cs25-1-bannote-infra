@@ -3,7 +3,7 @@ name: Deploy LXD Infrastructure
 on:
   push:
     branches:
-      - dev
+      - main
     paths:
       - "lxd-infra/**"
       - "ansible/**"
@@ -12,7 +12,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, host, dev]
+    runs-on: [self-hosted, host, main]
     steps:
       - uses: actions/checkout@v3
 
