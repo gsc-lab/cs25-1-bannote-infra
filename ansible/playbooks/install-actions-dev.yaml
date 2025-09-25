@@ -1,0 +1,108 @@
+---
+- name: Install GitHub Actions Self-hosted Runner (Dev)
+  hosts: all
+  become: true
+  vars:
+    runner_user: "actions"
+    runner_dir: "/opt/actions-runner"
+    github_owner: "{{ github_repo_owner }}"
+    github_repo: "{{ github_repo_name }}"
+    runner_token: "{{ runner_provisioning_pat }}"
+
+  tasks:
+    - name: Install prerequisite packages
+      apt:
+        name:
+          - curl
+          - jq
+          - tar
+          - unzip
+          - libssl-dev
+          - libffi-dev
+          - python3-dev
+          - python3-pip
+        state: present
+        update_cache: yes
+
+    - name: Create actions user
+      user:
+        name: "{{ runner_user }}"
+        system: yes
+        shell: /bin/bash
+        home: "{{ runner_dir }}"
+        create_home: yes
+
+    - name: Create runner directory
+      file:
+        path: "{{ runner_dir }}"
+        state: directory
+        owner: "{{ runner_user }}"
+        group: "{{ runner_user }}"
+        mode: "0755"
+
+    - name: Get GitHub runner registration token
+      uri:
+        url: "https://api.github.com/repos/{{ github_owner }}/{{ github_repo }}/actions/runners/registration-token"
+        method: POST
+        headers:
+          Accept: "application/vnd.github+json"
+          Authorization: "Bearer {{ runner_token }}"
+          X-GitHub-Api-Version: "2022-11-28"
+        status_code: 201
+      register: registration_response
+
+    - name: Download GitHub Actions Runner
+      get_url:
+        url: "https://github.com/actions/runner/releases/download/v2.328.0/actions-runner-linux-x64-2.328.0.tar.gz"
+        dest: "/tmp/actions-runner-linux-x64.tar.gz"
+        mode: "0644"
+
+    - name: Extract GitHub Actions Runner
+      unarchive:
+        src: "/tmp/actions-runner-linux-x64.tar.gz"
+        dest: "{{ runner_dir }}"
+        remote_src: yes
+        owner: "{{ runner_user }}"
+        group: "{{ runner_user }}"
+
+    - name: Configure GitHub Actions Runner
+      shell: |
+        cd {{ runner_dir }}
+        sudo -u {{ runner_user }} ./config.sh --url https://github.com/{{ github_owner }}/{{ github_repo }} \
+                    --token {{ registration_response.json.token }} \
+                    --name {{ ansible_hostname }}-runner-dev \
+                    --work _work \
+                    --labels dev,lxd \
+                    --unattended \
+                    --replace
+      args:
+        creates: "{{ runner_dir }}/.runner"
+
+    - name: Install GitHub Actions Runner service
+      shell: |
+        cd {{ runner_dir }}
+        ./svc.sh install {{ runner_user }}
+      args:
+        creates: /etc/systemd/system/actions.runner.*.service
+
+    - name: Start and enable GitHub Actions Runner service
+      shell: |
+        cd {{ runner_dir }}
+        ./svc.sh start
+      register: service_start
+
+    - name: Enable runner service for auto-start
+      systemd:
+        name: "actions.runner.{{ github_owner }}-{{ github_repo }}.{{ ansible_hostname }}-runner-dev.service"
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Verify runner service status
+      shell: systemctl status actions.runner.{{ github_owner }}-{{ github_repo }}.{{ ansible_hostname }}-runner-dev.service
+      register: service_status
+      failed_when: false
+
+    - name: Display service status
+      debug:
+        msg: "{{ service_status.stdout_lines }}"

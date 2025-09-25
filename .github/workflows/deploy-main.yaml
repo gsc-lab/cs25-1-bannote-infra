@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - dev
     paths:
       - "lxd-infra/**"
       - "ansible/**"
@@ -13,7 +12,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: [self-hosted, host, main]
     steps:
       - uses: actions/checkout@v3
 
@@ -158,3 +157,15 @@ jobs:
           ansible-playbook -i "$INVENTORY_PATH" ansible/playbooks/install-terraform.yaml
 
           echo "✅ Terraform installation completed!"
+
+      - name: Install GitHub Actions Runner on LXD instances
+        run: |
+          echo "Installing GitHub Actions Runner on all instances..."
+          INVENTORY_PATH="$HOME/inventory/inventory-${{ env.ENV }}"
+
+          ansible-playbook -i "$INVENTORY_PATH" ansible/playbooks/install-actions-${{ env.ENV }}.yaml \
+            -e "github_repo_owner=${{ github.repository_owner }}" \
+            -e "github_repo_name=${{ github.event.repository.name }}" \
+            -e "runner_provisioning_pat=${{ secrets.RUNNER_PROVISIONING_PAT }}" \
+
+          echo "✅ GitHub Actions Runner installation completed!"
