@@ -1,0 +1,32 @@
+---
+- name: Install Terraform
+  hosts: all
+  become: true
+  tasks:
+    - name: Install prerequisite packages
+      apt:
+        name:
+          - gnupg
+          - software-properties-common
+        state: present
+        update_cache: yes
+
+    - name: Add HashiCorp GPG key
+      shell: >
+        wget -O- https://apt.releases.hashicorp.com/gpg |
+        gpg --dearmor |
+        tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+      args:
+        creates: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+    - name: Add HashiCorp repository
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ ansible_lsb.codename }} main"
+        state: present
+        filename: hashicorp
+
+    - name: Update apt-get repo and install terraform
+      apt:
+        name: terraform
+        update_cache: yes
+        state: present
