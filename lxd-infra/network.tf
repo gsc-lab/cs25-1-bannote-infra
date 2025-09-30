@@ -1,3 +1,14 @@
+resource "lxd_network" "env_net" {
+  name = "lxdbr-${var.environment}"
+
+  config = {
+    # main: 10.246.200.0/24, dev: 10.246.201.0/24로 분리
+    "ipv4.address" = var.environment == "main" ? "10.246.200.1/24" : "10.246.201.1/24"
+    "ipv4.nat"     = "true"
+    "ipv6.address" = "none"
+  }
+}
+
 # LXD Network Forward 설정
 # 외부 IP에서 LXD 인스턴스로 포트 포워딩
 
@@ -18,7 +29,7 @@ locals {
 
 # 하나의 network forward로 모든 포트 관리
 resource "lxd_network_forward" "main" {
-  network        = "lxdbr0"
+  network        = lxd_network.env_net.name
   listen_address = var.lxd_host_ip
 
   # ports는 리스트 속성 (동적 블록 아님)

@@ -47,6 +47,15 @@ resource "lxd_instance" "cluster_vms" {
     memory = each.value.memory_limit
   }
 
+  device {
+    name = "eth0"
+    type = "nic"
+    properties = {
+      network = lxd_network.env_net.name
+      name    = "eth0"
+    }
+  }
+
   config = {
     "cloud-init.user-data" = <<-EOF
 #cloud-config
