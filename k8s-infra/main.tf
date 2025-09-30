@@ -6,11 +6,11 @@ terraform {
   required_providers {
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 2.23"
+      version = "2.38.0"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "~> 2.11"
+      version = "3.0.2"
     }
   }
 }
@@ -26,20 +26,8 @@ provider "helm" {
   }
 }
 
-# ArgoCD 네임스페이스 생성
-resource "kubernetes_namespace" "argocd" {
-  metadata {
-    name = "argocd"
-  }
-}
-
-resource "kubernetes_namespace_v1" "argocd" {
-  metadata {
-    name = "argocd"
-  }
-}
-
 resource "helm_release" "argocd" {
+  create_namespace = true  # Helm이 자동으로 namespace 생성
   name       = "argocd"
   repository = "https://argoproj.github.io/argo-helm"
   chart      = "argo-cd"
@@ -49,8 +37,9 @@ resource "helm_release" "argocd" {
     yamlencode({
       server = {
         service = {
-          type = "NodePort"
-          nodePortHttp = 8081
+          type         = "NodePort"
+          nodePortHttp = 30001
+          nodePortHttps = 30002
         }
       }
     })
@@ -76,7 +65,7 @@ resource "kubernetes_service_v1" "traefik_dashboard" {
       protocol = "TCP"
       port = 8080
       target_port = 8080
-      node_port = 8080
+      node_port = 30000
     }
   }
 }

@@ -1,7 +1,7 @@
 # ArgoCD 접속 정보 출력
 output "argocd_namespace" {
   description = "ArgoCD가 설치된 네임스페이스"
-  value       = kubernetes_namespace.argocd.metadata[0].name
+  value       = helm_release.argocd.namespace
 }
 
 output "argocd_server_service" {
