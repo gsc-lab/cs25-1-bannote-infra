@@ -14,14 +14,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  setup-k8s-dev-1:
+  setup-k8s-on-all-runners:
     runs-on: [self-hosted, dev, lxd]
 
-  setup-k8s-dev-2:
-    runs-on: [self-hosted, dev, lxd]
-
-  setup-k8s-dev-3:
-    runs-on: [self-hosted, dev, lxd]
+    strategy:
+      fail-fast: false
+      matrix:
+        instance: [1, 2, 3]
 
     steps:
       - uses: actions/checkout@v3
