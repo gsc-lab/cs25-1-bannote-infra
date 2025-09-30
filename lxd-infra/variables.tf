@@ -74,6 +74,7 @@ variable "common_ports" {
     # 순차적 할당 (listen = base_port + index)
     # listen: base_port + 0  (e.g., 8000)
     { name = "traefik-dashboard", port = 8080, use_direct_mapping = false },
+    { name = "argocd-dashboard", port = 8081, use_direct_mapping = false},
 
     # 지정 번호 할당 (listen = base_port + port)
     # listen: base_port + 80   (e.g., 8080)
