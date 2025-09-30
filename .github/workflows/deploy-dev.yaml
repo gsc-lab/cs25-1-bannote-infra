@@ -7,7 +7,7 @@ on:
     paths:
       - "lxd-infra/**"
       - "ansible/**"
-      - ".github/workflows/deploy-lxd.yaml"
+      - ".github/workflows/deploy-dev.yaml"
   pull_request:
     branches:
       - main
@@ -59,12 +59,15 @@ jobs:
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "ENV=main" >> $GITHUB_ENV
             echo "WORKSPACE_NAME=bannote-server-main" >> $GITHUB_ENV
+            echo "LXD_HOST_IP=${{ secrets.LXD_HOST_IP_MAIN }}" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/dev" ]] || [[ "${{ github.head_ref }}" == "dev" ]]; then
             echo "ENV=dev" >> $GITHUB_ENV
             echo "WORKSPACE_NAME=bannote-server-dev" >> $GITHUB_ENV
+            echo "LXD_HOST_IP=${{ secrets.LXD_HOST_IP_DEV }}" >> $GITHUB_ENV
           elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "main" ]]; then
             echo "ENV=dev" >> $GITHUB_ENV
             echo "WORKSPACE_NAME=bannote-server-dev" >> $GITHUB_ENV
+            echo "LXD_HOST_IP=${{ secrets.LXD_HOST_IP_DEV }}" >> $GITHUB_ENV
             echo "Running PR validation using dev environment"
           else
             echo "Error: Deploy workflow must be run from 'main' or 'dev' branch, or as PR to main."
@@ -84,10 +87,12 @@ jobs:
         working-directory: ./lxd-infra
         env:
           TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_lxd_host_ip: ${{ env.LXD_HOST_IP }}
           TF_INPUT: false
           TF_CLI_ARGS: "-no-color"
         run: |
           echo "Using Terraform workspace: ${{ env.WORKSPACE_NAME }}"
+          echo "Using LXD Host IP: ${{ env.LXD_HOST_IP }}"
 
           # Export TF_WORKSPACE to automatically select workspace during init
           export TF_WORKSPACE=${{ env.WORKSPACE_NAME }}
