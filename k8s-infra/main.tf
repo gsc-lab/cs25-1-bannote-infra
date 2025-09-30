@@ -57,7 +57,7 @@ resource "kubernetes_service_v1" "traefik_dashboard" {
 
     selector = {
       "app.kubernetes.io/name" = "traefik"
-      "app.kubernetes.io/instance" = "traefik-default"
+      "app.kubernetes.io/instance" = "traefik-kube-system"
     }
 
     port {
