@@ -51,6 +51,34 @@
         group: bannote
         mode: "0644"
 
+    - name: Configure Traefik to use host ports 80 and 443
+      copy:
+        dest: /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
+        content: |
+          apiVersion: helm.cattle.io/v1
+          kind: HelmChartConfig
+          metadata:
+            name: traefik
+            namespace: kube-system
+          spec:
+            valuesContent: |-
+              ports:
+                web:
+                  port: 8000
+                  exposedPort: 80
+                  hostPort: 80
+                websecure:
+                  port: 8443
+                  exposedPort: 443
+                  hostPort: 443
+              service:
+                type: NodePort
+        mode: "0644"
+
+    - name: Wait for Traefik to restart with new config
+      pause:
+        seconds: 30
+
     - name: Get nodes (as user)
       shell: kubectl get nodes
       become: false
