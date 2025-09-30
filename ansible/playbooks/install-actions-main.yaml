@@ -3,8 +3,8 @@
   hosts: all
   become: true
   vars:
-    runner_user: "actions"
-    runner_dir: "/opt/actions-runner"
+    runner_user: "bannote"
+    runner_dir: "/home/bannote/actions-runner"
     github_owner: "{{ github_repo_owner }}"
     github_repo: "{{ github_repo_name }}"
     runner_token: "{{ runner_provisioning_pat }}"
@@ -23,14 +23,6 @@
           - python3-pip
         state: present
         update_cache: yes
-
-    - name: Create actions user
-      user:
-        name: "{{ runner_user }}"
-        system: yes
-        shell: /bin/bash
-        home: "{{ runner_dir }}"
-        create_home: yes
 
     - name: Create runner directory
       file:
