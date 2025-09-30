@@ -41,6 +41,11 @@ jobs:
           }
           EOF
 
+      - name: Prepare Terraform state directory
+        run: |
+          mkdir -p /home/bannote/.terraform-state
+          chmod 755 /home/bannote/.terraform-state
+
       - name: Terraform Apply for ${{ matrix.instance }}
         working-directory: ./k8s-infra
         env:
