@@ -57,3 +57,5 @@ jobs:
         run: |
           echo "Verifying K8s cluster on bannote-dev-${{ matrix.instance }}"
           kubectl cluster-info
+        env:
+          KUBECONFIG: /home/bannote/.kube/config
