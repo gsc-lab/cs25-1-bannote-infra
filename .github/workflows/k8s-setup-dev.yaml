@@ -51,7 +51,6 @@ jobs:
         env:
           TF_VAR_environment: dev
           TF_VAR_instance_name: ${{ matrix.instance }}
-          TF_WORKSPACE: bannote-k8s-dev-${{ matrix.instance }}
         run: |
           echo "Setting up Kubernetes for bannote-dev-${{ matrix.instance }}"
 
