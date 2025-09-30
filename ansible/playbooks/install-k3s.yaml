@@ -51,7 +51,7 @@
         group: bannote
         mode: "0644"
 
-    - name: Configure Traefik to use host ports 80 and 443
+    - name: Configure Traefik to use node ports 30080 and 30443
       copy:
         dest: /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
         content: |
@@ -66,11 +66,11 @@
                 web:
                   port: 8000
                   exposedPort: 80
-                  hostPort: 80
+                  nodePort: 30080
                 websecure:
                   port: 8443
                   exposedPort: 443
-                  hostPort: 443
+                  nodePort: 30443
               service:
                 type: NodePort
         mode: "0644"
