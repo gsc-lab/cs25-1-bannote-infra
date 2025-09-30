@@ -45,27 +45,3 @@ resource "helm_release" "argocd" {
     })
   ]
 }
-
-# traefik 대시보드 연결
-resource "kubernetes_service_v1" "traefik_dashboard" {
-  metadata {
-    name = "traefik-dashboard-service"
-    namespace = "default"
-  }
-  spec {
-    type = "NodePort"
-
-    selector = {
-      "app.kubernetes.io/name" = "traefik"
-      "app.kubernetes.io/instance" = "traefik-kube-system"
-    }
-
-    port {
-      name = "dashboard"
-      protocol = "TCP"
-      port = 8080
-      target_port = 8080
-      node_port = 30000
-    }
-  }
-}
