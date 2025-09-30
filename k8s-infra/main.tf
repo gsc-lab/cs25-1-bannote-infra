@@ -17,12 +17,12 @@ terraform {
 
 # K3s kubeconfig 경로 (k3s가 자동으로 생성)
 provider "kubernetes" {
-  config_path = "~/.kube/config"
+  config_path = "/home/bannote/.kube/config"
 }
 
 provider "helm" {
   kubernetes = {
-    config_path = "~/.kube/config"
+    config_path = "/home/bannote/.kube/config"
   }
 }
 

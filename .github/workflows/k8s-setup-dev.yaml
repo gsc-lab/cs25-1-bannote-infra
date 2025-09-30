@@ -41,6 +41,10 @@ jobs:
           }
           EOF
 
+      - name: Fix kubeconfig permissions
+        run: |
+          sudo chmod 644 /home/bannote/.kube/config || echo "Kubeconfig not found yet"
+
       - name: Terraform Apply for ${{ matrix.instance }}
         working-directory: ./k8s-infra
         env:
