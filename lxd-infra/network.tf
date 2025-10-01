@@ -1,3 +1,5 @@
+# 동일한 서버를 사용하는 경우 두 개의 네트워크를 하나의 ip 에 할당할 수 없기 때문에 별도의 network-forward-infra에서 관리
+
 resource "lxd_network" "env_net" {
   name = "lxdbr-${var.environment}"
 

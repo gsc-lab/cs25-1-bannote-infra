@@ -73,16 +73,20 @@ variable "common_ports" {
   default = [
     # 순차적 할당 (listen = base_port + index)
     # listen: base_port + 0  (e.g., 8000)
-    { name = "traefik-dashboard", port = 8080, use_direct_mapping = false },
-    { name = "argocd-dashboard", port = 8081, use_direct_mapping = false},
+    { name = "ssh",                     port = 22,    use_direct_mapping = false }, // 0
+    { name = "http",                    port = 30080, use_direct_mapping = false }, // 1
+    { name = "https",                   port = 30443, use_direct_mapping = false }, // 2
+    { name = "traefik-dashboard",       port = 30000, use_direct_mapping = false }, // 3
+    { name = "argocd-http-dashboard",   port = 30001, use_direct_mapping = false }, // 4
+    { name = "argocd-https-dashboard",  port = 30002, use_direct_mapping = false }, // 5
 
     # 지정 번호 할당 (listen = base_port + port)
     # listen: base_port + 80   (e.g., 8080)
-    { name = "http",              port = 80,   use_direct_mapping = true },
+    # { name = "http",              port = 80,   use_direct_mapping = true },
     # listen: base_port + 443  (e.g., 8443)
-    { name = "https",             port = 443,  use_direct_mapping = true },
+    # { name = "https",             port = 443,  use_direct_mapping = true },
     # listen: base_port + 22   (e.g., 8022)
-    { name = "ssh",               port = 22,   use_direct_mapping = true }
+    # { name = "ssh",               port = 22,   use_direct_mapping = true }
   ]
 }
 

@@ -1,0 +1,65 @@
+name: Setup Kubernetes on Dev Environment
+
+on:
+  workflow_run:
+    workflows: ["Deploy LXD Infrastructure"]
+    types:
+      - completed
+  push:
+    branches:
+      - dev
+    paths:
+      - "k8s-infra/**"
+      - ".github/workflows/k8s-setup-dev.yaml"
+  workflow_dispatch:
+
+jobs:
+  setup-k8s-on-all-runners:
+    runs-on: [self-hosted, dev, lxd]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        instance: [1, 2, 3]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Configure Terraform Cloud credentials
+        run: |
+          cat > ~/.terraformrc <<EOF
+          credentials "app.terraform.io" {
+          token = "${{ secrets.TF_API_TOKEN_BANNOTE_SERVER }}"
+          }
+          EOF
+
+      - name: Prepare Terraform state directory
+        run: |
+          mkdir -p /home/bannote/.terraform-state
+          chmod 755 /home/bannote/.terraform-state
+
+      - name: Terraform Apply for ${{ matrix.instance }}
+        working-directory: ./k8s-infra
+        env:
+          TF_VAR_environment: dev
+          TF_VAR_instance_name: ${{ matrix.instance }}
+        run: |
+          echo "Setting up Kubernetes for bannote-dev-${{ matrix.instance }}"
+
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Verify Kubernetes cluster
+        run: |
+          echo "Verifying K8s cluster on bannote-dev-${{ matrix.instance }}"
+          kubectl cluster-info
+        env:
+          KUBECONFIG: /home/bannote/.kube/config
