@@ -11,7 +11,7 @@ terraform {
 
 # 깃허브 액션스에서 받은 변수에 따라 생성할 클러스터 목록을 필터링
 locals {
-  # Enrich cluster data with port forwarding rules based on the hybrid model
+  # 클러스터 데이터에 포트포워딩 규칙 추가
   enriched_clusters = {
     for key, cluster in var.clusters : key => merge(
       cluster,
@@ -19,7 +19,6 @@ locals {
         ports = [
           for i, p in var.common_ports : {
             name         = p.name
-            # Use conditional logic to choose the mapping strategy
             listen_port  = p.use_direct_mapping ? (cluster.base_port + p.port) : (cluster.base_port + i)
             connect_port = p.port
           }
@@ -28,7 +27,7 @@ locals {
     )
   }
 
-  # Filter for the target environment as before
+  # 브랜치에 따른 필터
   target_clusters = {
     for key, cluster in local.enriched_clusters : key => cluster
     if startswith(key, "bannote-${var.environment}-")

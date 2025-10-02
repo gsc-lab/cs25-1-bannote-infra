@@ -17,13 +17,31 @@ resource "lxd_network" "env_net" {
 # 모든 포트 매핑을 평탄화
 locals {
   all_port_mappings = flatten([
-    for cluster_key, cluster in local.target_clusters : [
-      for port in cluster.ports : {
-        description    = "${cluster.name}-${port.name}"
+    [
+      for cluster_key, cluster in local.target_clusters : [
+        for port in cluster.ports : {
+          description    = "${cluster.name}-${port.name}"
+          protocol       = "tcp"
+          listen_port    = tostring(port.listen_port)
+          target_address = cluster_key
+          target_port    = tostring(port.connect_port)
+        }
+      ]
+    ],
+    [
+      {
+        description    = "${var.environment}-http-prod"
         protocol       = "tcp"
-        listen_port    = tostring(port.listen_port)
-        target_address = cluster_key
-        target_port    = tostring(port.connect_port)
+        listen_port    = "80"
+        target_address = "bannote-${var.environment}-prod"
+        target_port    = "30080"
+      },
+      {
+        description    = "${var.environment}-https-prod"
+        protocol       = "tcp"
+        listen_port    = "443"
+        target_address = "bannote-${var.environment}-prod"
+        target_port    = "30443"
       }
     ]
   ])
