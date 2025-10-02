@@ -10,6 +10,7 @@ variable "ssh_public_key" {
 }
 
 variable "clusters" {
+  description = "구축할 LXD 클러스터 설정"
   type = map(object({
     name         = string
     image        = string
