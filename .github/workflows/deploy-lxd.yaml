@@ -1,3 +1,4 @@
+# 브랜치별 LXD(가상 환경) 및 네트워크 구축, 가상 환경 내부 k8s 설치, GitHub Actions 구축
 name: Deploy LXD Infrastructure
 
 on:
@@ -8,7 +9,7 @@ on:
     paths:
       - "lxd-infra/**"
       - "ansible/**"
-      - ".github/workflows/deploy-dev.yaml"
+      - ".github/workflows/deploy-lxd.yaml"
   pull_request:
     branches:
       - main
