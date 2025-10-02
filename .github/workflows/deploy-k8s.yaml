@@ -1,6 +1,8 @@
-name: Setup Kubernetes on Dev Environment
+# LXD 인스턴스 내부에 쿠버네티스 구축
+name: Deploy Kubernetes on LXD Instances
 
 on:
+  # deploy-lxd 워크플로우가 성공 했을 때 실행
   workflow_run:
     workflows: ["Deploy LXD Infrastructure"]
     types:
@@ -10,12 +12,19 @@ on:
       - dev
     paths:
       - "k8s-infra/**"
-      - ".github/workflows/k8s-setup-dev.yaml"
+      - ".github/workflows/deploy-k8s.yaml"
   workflow_dispatch:
 
 jobs:
   setup-k8s-on-all-runners:
-    runs-on: [self-hosted, dev, lxd]
+    runs-on:
+      [
+        self-hosted,
+        lxd,
+        "${{ github.ref == 'refs/heads/main' && 'main' || 'dev' }}",
+      ]
+    env:
+      ENV: ${{ github.ref_name == 'main' && 'main' || 'dev' }}
 
     strategy:
       fail-fast: false
@@ -49,17 +58,16 @@ jobs:
       - name: Terraform Apply for ${{ matrix.instance }}
         working-directory: ./k8s-infra
         env:
-          TF_VAR_environment: dev
+          TF_VAR_environment: ${{ env.ENV }}
           TF_VAR_instance_name: ${{ matrix.instance }}
         run: |
-          echo "Setting up Kubernetes for bannote-dev-${{ matrix.instance }}"
+          echo "Setting up Kubernetes for bannote-${{ env.ENV }}-${{ matrix.instance }}"
 
           terraform init
           terraform apply -auto-approve
 
       - name: Verify Kubernetes cluster
         run: |
-          echo "Verifying K8s cluster on bannote-dev-${{ matrix.instance }}"
-          kubectl cluster-info
+          echo "Verifying K8s cluster on bannote-${{ env.ENV }}-${{ matrix.instance }}"
         env:
           KUBECONFIG: /home/bannote/.kube/config
