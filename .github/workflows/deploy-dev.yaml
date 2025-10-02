@@ -3,6 +3,7 @@ name: Deploy LXD Infrastructure
 on:
   push:
     branches:
+      - main
       - dev
     paths:
       - "lxd-infra/**"
@@ -15,7 +16,12 @@ on:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, host, dev]
+    runs-on:
+      [
+        self-hosted,
+        host,
+        "${{ github.ref == 'refs/heads/main' && 'main' || 'dev' }}",
+      ]
     steps:
       - uses: actions/checkout@v3
 
@@ -179,7 +185,7 @@ jobs:
           echo "Installing GitHub Actions Runner on all instances..."
           INVENTORY_PATH="$HOME/inventory/inventory-${{ env.ENV }}"
 
-          ansible-playbook -i "$INVENTORY_PATH" ansible/playbooks/install-actions-${{ env.ENV }}.yaml \
+          ansible-playbook -i "$INVENTORY_PATH" ansible/playbooks/install-actions.yaml \
             -e "github_repo_owner=${{ github.repository_owner }}" \
             -e "github_repo_name=${{ github.event.repository.name }}" \
             -e "runner_provisioning_pat=${{ secrets.RUNNER_PROVISIONING_PAT }}" \
