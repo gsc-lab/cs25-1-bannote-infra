@@ -58,10 +58,10 @@ jobs:
       - name: Terraform Apply for ${{ matrix.instance }}
         working-directory: ./k8s-infra
         env:
-          TF_VAR_environment: ${{ env.ENV }}
-          TF_VAR_instance_name: ${{ matrix.instance }}
+          TF_VAR_runner_name: ${{ runner.name }}
         run: |
           echo "Setting up Kubernetes for bannote-${{ env.ENV }}-${{ matrix.instance }}"
+          echo "Runner name: ${{ runner.name }}"
 
           terraform init
           terraform apply -auto-approve

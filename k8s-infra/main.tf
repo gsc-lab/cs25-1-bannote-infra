@@ -15,6 +15,12 @@ terraform {
   }
 }
 
+locals {
+  runner_name_parts = split("-", var.runner_name)
+  # runner의 이름에서 "-"로 나누었을 때의 가장 마지막 값을 가져옴 (ex: prod, stg, dev)
+  environment       = element(local.runner_name_parts, length(local.runner_name_parts) - 1)
+}
+
 # K3s kubeconfig 경로 (k3s가 자동으로 생성)
 provider "kubernetes" {
   config_path = "/home/bannote/.kube/config"
@@ -34,14 +40,6 @@ resource "helm_release" "argocd" {
   namespace  = "argocd"
 
   values = [
-    yamlencode({
-      server = {
-        service = {
-          type         = "NodePort"
-          nodePortHttp = 30001
-          nodePortHttps = 30002
-        }
-      }
-    })
+    file("${path.module}/../helm/values/argocd/${local.environment}/values.yaml")
   ]
 }
