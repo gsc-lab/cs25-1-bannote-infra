@@ -46,4 +46,6 @@ resource "argocd_project" "infra" {
       warn = true
     }
   }
+
+  depends_on = [ helm_release.argocd ]
 }

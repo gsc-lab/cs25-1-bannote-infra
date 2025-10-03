@@ -103,6 +103,8 @@ resource "argocd_application" "istio_gateway" {
 
       helm {
         release_name = "istio-ingressgateway"
+
+        values = file("${path.module}/../helm/values/istio-gateway/${local.environment}/values.yaml")
       }
     }
 
@@ -112,12 +114,13 @@ resource "argocd_application" "istio_gateway" {
         self_heal = true
       }
 
-      sync_options = ["CreateNamespace=true"]
+      sync_options = []
     }
   }
 
   depends_on = [
     argocd_application.istio_istiod,
-    argocd_project.infra
+    argocd_project.infra,
+    kubernetes_namespace.istio_ingress
   ]
 }

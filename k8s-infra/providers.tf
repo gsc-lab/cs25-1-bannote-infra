@@ -25,22 +25,20 @@ provider "helm" {
   }
 }
 
-data "kubernetes_secret" "argocd_initial_admin_secret" {
-    metadata {
-      name      = "argocd-initial-admin-secret"
-      namespace = "argocd"
-    }
+data "kubernetes_secret" "argocd_admin" {
+  count = fileexists("/home/bannote/.kube/config") ? 1 : 0
 
-    depends_on = [helm_release.argocd]
+  metadata {
+    name      = "argocd-initial-admin-secret"
+    namespace = "argocd"
+  }
+
+  depends_on = [helm_release.argocd]
 }
 
 provider "argocd" {
-    server_addr = "argocd-server.argocd.svc.cluster.local:443"
-    username    = "admin"
-    password    = data.kubernetes_secret.argocd_initial_admin_secret.data["password"]
-    insecure    = true
-
-    kubernetes = {
-        config_path = "/home/bannote/.kube/config"
-    }
+  server_addr = "127.0.0.1:30002"
+  username    = "admin"
+  password    = try(data.kubernetes_secret.argocd_admin[0].data["password"], "")
+  insecure    = true
 }
