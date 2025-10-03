@@ -34,7 +34,7 @@ repoServer:
 
           # helm-secrets 플러그인 설치
           mkdir -p /custom-tools/helm-plugins
-          wget -qO- https://github.com/jkroepke/helm-secrets/releases/download/v4.5.1/helm-secrets.tar.gz | tar -C /custom-tools/helm-plugins -xzf-
+          wget -qO- https://github.com/jkroepke/helm-secrets/releases/download/v4.6.10/helm-secrets.tar.gz | tar -C /custom-tools/helm-plugins -xzf-
       volumeMounts:
         - name: custom-tools
           mountPath: /custom-tools
