@@ -43,22 +43,22 @@ variable "clusters" {
     "bannote-dev-prod" = {
       name         = "bannote-dev-prod"
       image        = "ubuntu:22.04"
-      cpu_limit    = "1"
-      memory_limit = "2GB"
+      cpu_limit    = "4"
+      memory_limit = "4GB"
       base_port    = 9000
     }
     "bannote-dev-stg" = {
       name         = "bannote-dev-stg"
       image        = "ubuntu:22.04"
-      cpu_limit    = "1"
-      memory_limit = "2GB"
+      cpu_limit    = "4"
+      memory_limit = "4GB"
       base_port    = 9100
     }
     "bannote-dev-dev" = {
       name         = "bannote-dev-dev"
       image        = "ubuntu:22.04"
-      cpu_limit    = "1"
-      memory_limit = "2GB"
+      cpu_limit    = "4"
+      memory_limit = "4GB"
       base_port    = 9200
     }
   }
