@@ -3,3 +3,65 @@ server:
     type: NodePort
     nodePortHttp: 30001
     nodePortHttps: 30002
+
+# --- helm-secrets 통합 ---
+repoServer:
+  # Age private key를 환경변수로 주입
+  env:
+    - name: SOPS_AGE_KEY_FILE
+      value: /home/bannote/.config/sops/age/keys.txt
+    - name: HELM_PLUGINS
+      value: /custom-tools/helm-plugins
+    - name: HELM_SECRETS_HELM_PATH
+      value: /usr/local/bin/helm
+    - name: HELM_SECRETS_SOPS_PATH
+      value: /custom-tools/sops
+    - name: HELM_SECRETS_BACKEND
+      value: sops
+
+  # Init container: helm-secrets + sops 설치
+  initContainers:
+    - name: install-helm-secrets
+      image: alpine:3.18
+      command:
+        - sh
+        - -c
+        - |
+          set -e
+          # SOPS 설치
+          wget -qO /custom-tools/sops https://github.com/getsops/sops/releases/download/v3.8.1/sops-v3.8.1.linux.amd64
+          chmod +x /custom-tools/sops
+
+          # helm-secrets 플러그인 설치
+          mkdir -p /custom-tools/helm-plugins
+          wget -qO- https://github.com/jkroepke/helm-secrets/releases/download/v4.5.1/helm-secrets.tar.gz | tar -C /custom-tools/helm-plugins -xzf-
+      volumeMounts:
+        - name: custom-tools
+          mountPath: /custom-tools
+
+  # Volume mounts
+  volumeMounts:
+    - name: custom-tools
+      mountPath: /custom-tools
+    - name: sops-age-keys
+      mountPath: /home/bannote/.config/sops/age
+      readOnly: true
+
+  # Volumes
+  volumes:
+    - name: custom-tools
+      emptyDir: {}
+    - name: sops-age-keys
+      hostPath:
+        path: /home/bannote/.config/sops/age
+        type: Directory
+
+# ArgoCD ConfigMap 설정
+configs:
+  cm:
+    # helm-secrets 스킴 허용
+    helm.valuesFileSchemes: >-
+      secrets+gpg-import, secrets+gpg-import-kubernetes,
+      secrets+age-import, secrets+age-import-kubernetes,
+      secrets, secrets+literal,
+      https

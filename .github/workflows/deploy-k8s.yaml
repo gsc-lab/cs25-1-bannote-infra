@@ -55,6 +55,15 @@ jobs:
           mkdir -p /home/bannote/.terraform-state
           chmod 755 /home/bannote/.terraform-state
 
+      - name: Setup SOPS Age key
+        run: |
+          # Age keys 디렉터리 생성
+          mkdir -p /home/bannote/.config/sops/age
+
+          # Age private key 파일 생성
+          echo "${{ secrets.AGE_PRIVATE_KEY }}" > /home/bannote/.config/sops/age/keys.txt
+          chmod 600 /home/bannote/.config/sops/age/keys.txt
+
       - name: Terraform Apply for ${{ matrix.instance }}
         working-directory: ./k8s-infra
         env:
