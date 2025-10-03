@@ -44,21 +44,21 @@ variable "clusters" {
       name         = "bannote-dev-prod"
       image        = "ubuntu:22.04"
       cpu_limit    = "4"
-      memory_limit = "4GB"
+      memory_limit = "8GB"
       base_port    = 9000
     }
     "bannote-dev-stg" = {
       name         = "bannote-dev-stg"
       image        = "ubuntu:22.04"
       cpu_limit    = "4"
-      memory_limit = "4GB"
+      memory_limit = "8GB"
       base_port    = 9100
     }
     "bannote-dev-dev" = {
       name         = "bannote-dev-dev"
       image        = "ubuntu:22.04"
       cpu_limit    = "4"
-      memory_limit = "4GB"
+      memory_limit = "8GB"
       base_port    = 9200
     }
   }
@@ -77,7 +77,7 @@ variable "common_ports" {
     { name = "ssh",                     port = 22,    use_direct_mapping = false }, // 0
     { name = "http",                    port = 30080, use_direct_mapping = false }, // 1
     { name = "https",                   port = 30443, use_direct_mapping = false }, // 2
-    { name = "traefik-dashboard",       port = 30000, use_direct_mapping = false }, // 3
+    { name = "kiali-dashboard",         port = 30000, use_direct_mapping = false }, // 3
     { name = "argocd-http-dashboard",   port = 30001, use_direct_mapping = false }, // 4
     { name = "argocd-https-dashboard",  port = 30002, use_direct_mapping = false }, // 5
 
