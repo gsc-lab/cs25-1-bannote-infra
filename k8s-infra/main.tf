@@ -18,6 +18,6 @@ resource "helm_release" "argocd" {
   namespace  = "argocd"
 
   values = [
-    file("${path.module}/../helm/values/argocd/${local.environment}/values.yaml")
+    file("${path.module}/../helm/values/argocd/shared/values.yaml")
   ]
 }

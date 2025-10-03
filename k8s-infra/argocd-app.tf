@@ -104,7 +104,7 @@ resource "argocd_application" "istio_gateway" {
       helm {
         release_name = "istio-ingressgateway"
 
-        values = file("${path.module}/../helm/values/istio-gateway/${local.environment}/values.yaml")
+        values = file("${path.module}/../helm/values/istio-gateway/shared/values.yaml")
       }
     }
 
