@@ -9,7 +9,7 @@
       register: k3s_exists
 
     - name: Install k3s
-      shell: curl -sfL https://get.k3s.io | sh -
+      shell: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable traefik" sh -
       when: not k3s_exists.stat.exists
 
     - name: Wait for k3s to be ready
@@ -50,44 +50,6 @@
         owner: bannote
         group: bannote
         mode: "0644"
-
-    - name: Configure Traefik to use node ports 30080 and 30443
-      copy:
-        dest: /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
-        content: |
-          apiVersion: helm.cattle.io/v1
-          kind: HelmChartConfig
-          metadata:
-            name: traefik
-            namespace: kube-system
-          spec:
-            valuesContent: |-
-              additionalArguments:
-                - "--api"
-                - "--api.dashboard=true"
-                - "--api.insecure=true"
-              ports:
-                web:
-                  port: 8000
-                  exposedPort: 80
-                  nodePort: 30080
-                websecure:
-                  port: 8443
-                  exposedPort: 443
-                  nodePort: 30443
-                traefik:
-                  port: 9000
-                  expose:
-                    default: true
-                  exposedPort: 9000
-                  nodePort: 30000
-              service:
-                type: NodePort
-        mode: "0644"
-
-    - name: Wait for Traefik to restart with new config
-      pause:
-        seconds: 30
 
     - name: Get nodes (as user)
       shell: kubectl get nodes
