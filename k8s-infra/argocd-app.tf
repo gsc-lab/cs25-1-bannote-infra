@@ -1,8 +1,11 @@
-# TODO: 지속적인 CD 작업을 위해 CI 작업 시 1회성으로 가져오는 파일이 아닌, 깃허브 리포지토리의 파일을 참조하도록 변경
-
 # ======================
 # Infra Project Applications
 # ======================
+
+locals {
+  github_repo_url = "https://github.com/gsc-lab/cs25-1-bannote-infra.git"
+  github_revision = var.github_branch
+}
 
 # Istio Base (CRDs)
 resource "argocd_application" "istio_base" {
@@ -64,9 +67,14 @@ resource "argocd_application" "istio_istiod" {
 
       helm {
         release_name = "istiod"
-
-        values = file("${path.module}/../helm/values/istiod/shared/values.yaml")
+        value_files  = ["$values/helm/values/istiod/shared/values.yaml"]
       }
+    }
+
+    source {
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      ref             = "values"
     }
 
     sync_policy {
@@ -107,9 +115,14 @@ resource "argocd_application" "istio_gateway" {
 
       helm {
         release_name = "istio-ingressgateway"
-
-        values = file("${path.module}/../helm/values/istio-gateway/shared/values.yaml")
+        value_files  = ["$values/helm/values/istio-gateway/shared/values.yaml"]
       }
+    }
+
+    source {
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      ref             = "values"
     }
 
     sync_policy {
@@ -155,9 +168,14 @@ resource "argocd_application" "prometheus" {
 
       helm {
         release_name = "prometheus"
-
-        values = file("${path.module}/../helm/values/prometheus/shared/values.yaml")
+        value_files  = ["$values/helm/values/prometheus/shared/values.yaml"]
       }
+    }
+
+    source {
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      ref             = "values"
     }
 
     sync_policy {
@@ -198,9 +216,14 @@ resource "argocd_application" "grafana" {
 
       helm {
         release_name = "grafana"
-
-        values = file("${path.module}/../helm/values/grafana/shared/values.yaml")
+        value_files  = ["$values/helm/values/grafana/shared/values.yaml"]
       }
+    }
+
+    source {
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      ref             = "values"
     }
 
     sync_policy {
@@ -241,9 +264,14 @@ resource "argocd_application" "kiali" {
 
       helm {
         release_name = "kiali"
-
-        values = file("${path.module}/../helm/values/kiali/shared/values.yaml")
+        value_files  = ["$values/helm/values/kiali/shared/values.yaml"]
       }
+    }
+
+    source {
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      ref             = "values"
     }
 
     sync_policy {
