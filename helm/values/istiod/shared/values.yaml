@@ -1,0 +1,4 @@
+pilot:
+  podLabels:
+    app: istiod
+    version: v1
