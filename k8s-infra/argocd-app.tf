@@ -1,3 +1,5 @@
+# TODO: 지속적인 CD 작업을 위해 CI 작업 시 1회성으로 가져오는 파일이 아닌, 깃허브 리포지토리의 파일을 참조하도록 변경
+
 # ======================
 # Infra Project Applications
 # ======================
@@ -63,12 +65,7 @@ resource "argocd_application" "istio_istiod" {
       helm {
         release_name = "istiod"
 
-        values = <<-EOT
-          pilot:
-            podLabels:
-              app: istiod
-              version: v1
-        EOT
+        values = file("${path.module}/../helm/values/istiod/shared/values.yaml")
       }
     }
 
@@ -159,40 +156,7 @@ resource "argocd_application" "prometheus" {
       helm {
         release_name = "prometheus"
 
-        values = <<-EOT
-          server:
-            service:
-              type: ClusterIP
-            persistentVolume:
-              enabled: true
-              size: 8Gi
-            podLabels:
-              app: prometheus
-              version: v1
-          alertmanager:
-            enabled: false
-          prometheus-pushgateway:
-            enabled: false
-          serverFiles:
-            prometheus.yml:
-              scrape_configs:
-                - job_name: 'kubernetes-pods'
-                  kubernetes_sd_configs:
-                    - role: pod
-                  relabel_configs:
-                    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
-                      action: keep
-                      regex: true
-                    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
-                      action: replace
-                      target_label: __metrics_path__
-                      regex: (.+)
-                    - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
-                      action: replace
-                      regex: ([^:]+)(?::\d+)?;(\d+)
-                      replacement: $1:$2
-                      target_label: __address__
-        EOT
+        values = file("${path.module}/../helm/values/prometheus/shared/values.yaml")
       }
     }
 
@@ -235,26 +199,7 @@ resource "argocd_application" "grafana" {
       helm {
         release_name = "grafana"
 
-        values = <<-EOT
-          adminPassword: admin
-          service:
-            type: ClusterIP
-          persistence:
-            enabled: true
-            size: 10Gi
-          podLabels:
-            app: grafana
-            version: v1
-          datasources:
-            datasources.yaml:
-              apiVersion: 1
-              datasources:
-                - name: Prometheus
-                  type: prometheus
-                  url: http://prometheus-server
-                  access: proxy
-                  isDefault: true
-        EOT
+        values = file("${path.module}/../helm/values/grafana/shared/values.yaml")
       }
     }
 
@@ -297,28 +242,7 @@ resource "argocd_application" "kiali" {
       helm {
         release_name = "kiali"
 
-        values = <<-EOT
-          auth:
-            strategy: anonymous
-          deployment:
-            accessible_namespaces:
-              - '**'
-            pod_labels:
-              app: kiali
-              version: v1
-          server:
-            service_type: NodePort
-            node_port: 30000
-          external_services:
-            istio:
-              config_map_name: istio
-              istiod_deployment_name: istiod
-              istio_sidecar_injector_config_map_name: istio-sidecar-injector
-            prometheus:
-              url: http://prometheus-server
-            grafana:
-              url: http://grafana
-        EOT
+        values = file("${path.module}/../helm/values/kiali/shared/values.yaml")
       }
     }
 

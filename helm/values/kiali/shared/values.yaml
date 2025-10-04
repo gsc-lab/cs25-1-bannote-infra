@@ -1,0 +1,23 @@
+auth:
+  strategy: anonymous
+
+deployment:
+  accessible_namespaces:
+    - '**'
+  pod_labels:
+    app: kiali
+    version: v1
+
+server:
+  service_type: NodePort
+  node_port: 30000
+
+external_services:
+  istio:
+    config_map_name: istio
+    istiod_deployment_name: istiod
+    istio_sidecar_injector_config_map_name: istio-sidecar-injector
+  prometheus:
+    url: http://prometheus-server
+  grafana:
+    url: http://grafana
