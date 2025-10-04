@@ -1,8 +1,8 @@
 server:
   service:
     type: NodePort
-    nodePortHttp: 30001
-    nodePortHttps: 30002
+    nodePortHttp: 30004
+    nodePortHttps: 30005
 
 # --- helm-secrets 통합 ---
 repoServer:

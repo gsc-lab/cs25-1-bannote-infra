@@ -75,11 +75,11 @@ variable "common_ports" {
     # 순차적 할당 (listen = base_port + index)
     # listen: base_port + 0  (e.g., 8000)
     { name = "ssh",                     port = 22,    use_direct_mapping = false }, // 0
-    { name = "http",                    port = 30080, use_direct_mapping = false }, // 1
-    { name = "https",                   port = 30443, use_direct_mapping = false }, // 2
-    { name = "kiali-dashboard",         port = 30000, use_direct_mapping = false }, // 3
-    { name = "argocd-http-dashboard",   port = 30001, use_direct_mapping = false }, // 4
-    { name = "argocd-https-dashboard",  port = 30002, use_direct_mapping = false }, // 5
+    { name = "http",                    port = 30001, use_direct_mapping = false }, // 1
+    { name = "https",                   port = 30002, use_direct_mapping = false }, // 2
+    { name = "kiali-dashboard",         port = 30003, use_direct_mapping = false }, // 3
+    { name = "argocd-http-dashboard",   port = 30004, use_direct_mapping = false }, // 4
+    { name = "argocd-https-dashboard",  port = 30005, use_direct_mapping = false }, // 5
 
     # 지정 번호 할당 (listen = base_port + port)
     # listen: base_port + 80   (e.g., 8080)

@@ -3,14 +3,14 @@ auth:
 
 deployment:
   accessible_namespaces:
-    - '**'
+    - "**"
   pod_labels:
     app: kiali
     version: v1
+  service_type: NodePort
 
 server:
-  service_type: NodePort
-  node_port: 30000
+  node_port: 30003
 
 external_services:
   istio:

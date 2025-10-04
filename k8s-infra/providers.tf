@@ -37,7 +37,7 @@ data "kubernetes_secret" "argocd_admin" {
 }
 
 provider "argocd" {
-  server_addr = "127.0.0.1:30002"
+  server_addr = "127.0.0.1:30005"
   username    = "admin"
   password    = try(data.kubernetes_secret.argocd_admin[0].data["password"], "")
   insecure    = true
