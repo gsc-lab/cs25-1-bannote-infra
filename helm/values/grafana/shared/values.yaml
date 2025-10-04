@@ -1,7 +1,8 @@
 adminPassword: admin
 
 service:
-  type: ClusterIP
+  type: NodePort
+  nodePort: 30007
 
 persistence:
   enabled: true

@@ -72,6 +72,7 @@ variable "common_ports" {
     use_direct_mapping = bool
   }))
   default = [
+    # TODO: 실제 운영 시에는 Ingress로 변경 필요
     # 순차적 할당 (listen = base_port + index)
     # listen: base_port + 0  (e.g., 8000)
     { name = "ssh",                     port = 22,    use_direct_mapping = false }, // 0
@@ -80,6 +81,8 @@ variable "common_ports" {
     { name = "kiali-dashboard",         port = 30003, use_direct_mapping = false }, // 3
     { name = "argocd-http-dashboard",   port = 30004, use_direct_mapping = false }, // 4
     { name = "argocd-https-dashboard",  port = 30005, use_direct_mapping = false }, // 5
+    { name = "prometheus-dashboard",    port = 30006, use_direct_mapping = false }, // 6
+    { name = "grafana-dashboard",       port = 30007, use_direct_mapping = false }, // 7
 
     # 지정 번호 할당 (listen = base_port + port)
     # listen: base_port + 80   (e.g., 8080)

@@ -1,6 +1,7 @@
 server:
   service:
-    type: ClusterIP
+    type: NodePort
+    nodePort: 30006
   persistentVolume:
     enabled: true
     size: 8Gi
