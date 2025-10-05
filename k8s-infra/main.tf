@@ -12,7 +12,7 @@ locals {
 
 # ArgoCD secrets 복호화 (Terraform helm provider는 helm-secrets 플러그인 미지원)
 data "external" "argocd_secrets" {
-  program = ["helm", "secrets", "decrypt", "--terraform", "${path.module}/../helm/infrastructure/values/argocd/shared/secrets.sops.yaml"]
+  program = ["helm", "secrets", "decrypt", "--terraform", "${path.module}/../helm/infrastructure/argocd/values/shared/secrets.sops.yaml"]
 }
 
 resource "helm_release" "argocd" {
@@ -23,7 +23,7 @@ resource "helm_release" "argocd" {
   namespace  = "argocd"
 
   values = [
-    file("${path.module}/../helm/infrastructure/values/argocd/shared/values.yaml"),
+    file("${path.module}/../helm/infrastructure/argocd/values/shared/values.yaml"),
     base64decode(data.external.argocd_secrets.result.content_base64)
   ]
 }

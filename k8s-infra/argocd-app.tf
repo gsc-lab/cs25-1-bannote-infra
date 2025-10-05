@@ -23,9 +23,9 @@ resource "argocd_application" "istio_base" {
     }
 
     source {
-      repo_url        = "https://istio-release.storage.googleapis.com/charts"
-      chart           = "base"
-      target_revision = "1.27.1"
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/istio-base"
 
       helm {
         release_name = "istio-base"
@@ -63,13 +63,13 @@ resource "argocd_application" "istio_istiod" {
     source {
       repo_url        = local.github_repo_url
       target_revision = local.github_revision
-      path            = "helm/infrastructure/charts/istio-istiod"
+      path            = "helm/infrastructure/istio-istiod"
 
       helm {
         release_name = "istiod"
         value_files  = [
-          "../../values/istiod/values.yaml",
-          "secrets://../../values/istiod/secrets.sops.yaml"
+          "values/shared/values.yaml",
+          "secrets://values/shared/secrets.sops.yaml"
         ]
       }
     }
@@ -109,13 +109,13 @@ resource "argocd_application" "istio_gateway" {
     source {
       repo_url        = local.github_repo_url
       target_revision = local.github_revision
-      path            = "helm/infrastructure/charts/istio-gateway"
+      path            = "helm/infrastructure/istio-gateway"
 
       helm {
         release_name = "istio-ingressgateway"
         value_files  = [
-          "../../values/istio-gateway/values.yaml",
-          "secrets://../../values/istio-gateway/secrets.sops.yaml"
+          "values/shared/values.yaml",
+          "secrets://values/shared/secrets.sops.yaml"
         ]
       }
     }
@@ -160,13 +160,13 @@ resource "argocd_application" "prometheus" {
     source {
       repo_url        = local.github_repo_url
       target_revision = local.github_revision
-      path            = "helm/infrastructure/charts/prometheus"
+      path            = "helm/infrastructure/prometheus"
 
       helm {
         release_name = "prometheus"
         value_files  = [
-          "../../values/prometheus/values.yaml",
-          "secrets://../../values/prometheus/secrets.sops.yaml"
+          "values/shared/values.yaml",
+          "secrets://values/shared/secrets.sops.yaml"
         ]
       }
     }
@@ -206,13 +206,13 @@ resource "argocd_application" "grafana" {
     source {
       repo_url        = local.github_repo_url
       target_revision = local.github_revision
-      path            = "helm/infrastructure/charts/grafana"
+      path            = "helm/infrastructure/grafana"
 
       helm {
         release_name = "grafana"
         value_files  = [
-          "../../values/grafana/values.yaml",
-          "secrets://../../values/grafana/secrets.sops.yaml"
+          "values/shared/values.yaml",
+          "secrets://values/shared/secrets.sops.yaml"
         ]
       }
     }
@@ -252,13 +252,13 @@ resource "argocd_application" "kiali" {
     source {
       repo_url        = local.github_repo_url
       target_revision = local.github_revision
-      path            = "helm/infrastructure/charts/kiali"
+      path            = "helm/infrastructure/kiali"
 
       helm {
         release_name = "kiali"
         value_files  = [
-          "../../values/kiali/values.yaml",
-          "secrets://../../values/kiali/secrets.sops.yaml"
+          "values/shared/values.yaml",
+          "secrets://values/shared/secrets.sops.yaml"
         ]
       }
     }
