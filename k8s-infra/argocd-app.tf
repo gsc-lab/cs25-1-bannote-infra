@@ -61,23 +61,17 @@ resource "argocd_application" "istio_istiod" {
     }
 
     source {
-      repo_url        = "https://istio-release.storage.googleapis.com/charts"
-      chart           = "istiod"
-      target_revision = "1.27.1"
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/charts/istio-istiod"
 
       helm {
         release_name = "istiod"
         value_files  = [
-          "$values/helm/values/istiod/shared/values.yaml",
-          "$values/helm/values/istiod/shared/secrets.sops.yaml"
+          "../../values/istiod/values.yaml",
+          "secrets://../../values/istiod/secrets.sops.yaml"
         ]
       }
-    }
-
-    source {
-      repo_url        = local.github_repo_url
-      target_revision = local.github_revision
-      ref             = "values"
     }
 
     sync_policy {
@@ -113,23 +107,17 @@ resource "argocd_application" "istio_gateway" {
     }
 
     source {
-      repo_url        = "https://istio-release.storage.googleapis.com/charts"
-      chart           = "gateway"
-      target_revision = "1.27.1"
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/charts/istio-gateway"
 
       helm {
         release_name = "istio-ingressgateway"
         value_files  = [
-          "$values/helm/values/istio-gateway/shared/values.yaml",
-          "$values/helm/values/istio-gateway/shared/secrets.sops.yaml"
+          "../../values/istio-gateway/values.yaml",
+          "secrets://../../values/istio-gateway/secrets.sops.yaml"
         ]
       }
-    }
-
-    source {
-      repo_url        = local.github_repo_url
-      target_revision = local.github_revision
-      ref             = "values"
     }
 
     sync_policy {
@@ -170,23 +158,17 @@ resource "argocd_application" "prometheus" {
     }
 
     source {
-      repo_url        = "https://prometheus-community.github.io/helm-charts"
-      chart           = "prometheus"
-      target_revision = "25.28.0"
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/charts/prometheus"
 
       helm {
         release_name = "prometheus"
         value_files  = [
-          "$values/helm/values/prometheus/shared/values.yaml",
-          "$values/helm/values/prometheus/shared/secrets.sops.yaml"
+          "../../values/prometheus/values.yaml",
+          "secrets://../../values/prometheus/secrets.sops.yaml"
         ]
       }
-    }
-
-    source {
-      repo_url        = local.github_repo_url
-      target_revision = local.github_revision
-      ref             = "values"
     }
 
     sync_policy {
@@ -222,23 +204,17 @@ resource "argocd_application" "grafana" {
     }
 
     source {
-      repo_url        = "https://grafana.github.io/helm-charts"
-      chart           = "grafana"
-      target_revision = "8.8.2"
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/charts/grafana"
 
       helm {
         release_name = "grafana"
         value_files  = [
-          "$values/helm/values/grafana/shared/values.yaml",
-          "$values/helm/values/grafana/shared/secrets.sops.yaml"
+          "../../values/grafana/values.yaml",
+          "secrets://../../values/grafana/secrets.sops.yaml"
         ]
       }
-    }
-
-    source {
-      repo_url        = local.github_repo_url
-      target_revision = local.github_revision
-      ref             = "values"
     }
 
     sync_policy {
@@ -274,23 +250,17 @@ resource "argocd_application" "kiali" {
     }
 
     source {
-      repo_url        = "https://kiali.org/helm-charts"
-      chart           = "kiali-server"
-      target_revision = "2.3.0"
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/charts/kiali"
 
       helm {
         release_name = "kiali"
         value_files  = [
-          "$values/helm/values/kiali/shared/values.yaml",
-          "$values/helm/values/kiali/shared/secrets.sops.yaml"
+          "../../values/kiali/values.yaml",
+          "secrets://../../values/kiali/secrets.sops.yaml"
         ]
       }
-    }
-
-    source {
-      repo_url        = local.github_repo_url
-      target_revision = local.github_revision
-      ref             = "values"
     }
 
     sync_policy {
