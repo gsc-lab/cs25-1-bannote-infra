@@ -25,20 +25,9 @@ provider "helm" {
   }
 }
 
-data "kubernetes_secret" "argocd_admin" {
-  count = fileexists("/home/bannote/.kube/config") ? 1 : 0
-
-  metadata {
-    name      = "argocd-initial-admin-secret"
-    namespace = "argocd"
-  }
-
-  depends_on = [helm_release.argocd]
-}
-
 provider "argocd" {
   server_addr = "127.0.0.1:30005"
   username    = "admin"
-  password    = try(data.kubernetes_secret.argocd_admin[0].data["password"], "")
+  password    = yamldecode(base64decode(data.external.argocd_secrets.result.content_base64)).configs.secret.argocdServerAdminPassword
   insecure    = true
 }
