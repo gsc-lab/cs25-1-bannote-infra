@@ -92,7 +92,8 @@ resource "argocd_application" "istio_istiod" {
 
   depends_on = [
     argocd_application.istio_base,
-    argocd_project.infra
+    argocd_project.infra,
+    argocd_repository.infra_repo
   ]
 }
 
@@ -144,7 +145,8 @@ resource "argocd_application" "istio_gateway" {
   depends_on = [
     argocd_application.istio_istiod,
     argocd_project.infra,
-    kubernetes_namespace.istio_ingress
+    kubernetes_namespace.istio_ingress,
+    argocd_repository.infra_repo
   ]
 }
 
@@ -199,7 +201,8 @@ resource "argocd_application" "prometheus" {
 
   depends_on = [
     argocd_application.istio_istiod,
-    argocd_project.infra
+    argocd_project.infra,
+    argocd_repository.infra_repo
   ]
 }
 
@@ -250,7 +253,8 @@ resource "argocd_application" "grafana" {
 
   depends_on = [
     argocd_application.prometheus,
-    argocd_project.infra
+    argocd_project.infra,
+    argocd_repository.infra_repo
   ]
 }
 
@@ -303,6 +307,7 @@ resource "argocd_application" "kiali" {
     argocd_application.istio_istiod,
     argocd_application.prometheus,
     argocd_application.grafana,
-    argocd_project.infra
+    argocd_project.infra,
+    argocd_repository.infra_repo
   ]
 }
