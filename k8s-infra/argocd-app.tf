@@ -69,7 +69,7 @@ resource "argocd_application" "istio_istiod" {
         release_name = "istiod"
         value_files  = [
           "$values/helm/values/istiod/shared/values.yaml",
-          "secrets://$values/helm/values/istiod/shared/secrets.sops.yaml"
+          "$values/helm/values/istiod/shared/secrets.sops.yaml"
         ]
       }
     }
@@ -121,7 +121,7 @@ resource "argocd_application" "istio_gateway" {
         release_name = "istio-ingressgateway"
         value_files  = [
           "$values/helm/values/istio-gateway/shared/values.yaml",
-          "secrets://$values/helm/values/istio-gateway/shared/secrets.sops.yaml"
+          "$values/helm/values/istio-gateway/shared/secrets.sops.yaml"
         ]
       }
     }
@@ -178,7 +178,7 @@ resource "argocd_application" "prometheus" {
         release_name = "prometheus"
         value_files  = [
           "$values/helm/values/prometheus/shared/values.yaml",
-          "secrets://$values/helm/values/prometheus/shared/secrets.sops.yaml"
+          "$values/helm/values/prometheus/shared/secrets.sops.yaml"
         ]
       }
     }
@@ -230,7 +230,7 @@ resource "argocd_application" "grafana" {
         release_name = "grafana"
         value_files  = [
           "$values/helm/values/grafana/shared/values.yaml",
-          "secrets://$values/helm/values/grafana/shared/secrets.sops.yaml"
+          "$values/helm/values/grafana/shared/secrets.sops.yaml"
         ]
       }
     }
@@ -282,7 +282,7 @@ resource "argocd_application" "kiali" {
         release_name = "kiali"
         value_files  = [
           "$values/helm/values/kiali/shared/values.yaml",
-          "secrets://$values/helm/values/kiali/shared/secrets.sops.yaml"
+          "$values/helm/values/kiali/shared/secrets.sops.yaml"
         ]
       }
     }
