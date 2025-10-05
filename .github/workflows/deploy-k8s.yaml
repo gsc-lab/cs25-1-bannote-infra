@@ -60,6 +60,23 @@ jobs:
           mkdir -p /home/bannote/.terraform-state
           chmod 755 /home/bannote/.terraform-state
 
+      - name: Create ArgoCD namespace and helm-secrets Secret
+        run: |
+          export KUBECONFIG=/home/bannote/.kube/config
+
+          # Create argocd namespace if not exists
+          kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+
+          # Create age private key secret for helm-secrets
+          echo "${{ secrets.AGE_PRIVATE_KEY }}" > /tmp/key.txt
+          kubectl create secret generic helm-secrets-private-keys \
+            --from-file=key.txt=/tmp/key.txt \
+            --namespace argocd \
+            --dry-run=client -o yaml | kubectl apply -f -
+          rm /tmp/key.txt
+
+          echo "✅ ArgoCD helm-secrets private key configured"
+
       - name: Terraform Apply for ${{ matrix.instance }}
         working-directory: ./k8s-infra
         run: |
