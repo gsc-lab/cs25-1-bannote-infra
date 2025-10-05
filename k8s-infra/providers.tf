@@ -28,6 +28,6 @@ provider "helm" {
 provider "argocd" {
   server_addr = "127.0.0.1:30005"
   username    = "admin"
-  password    = yamldecode(base64decode(data.external.argocd_secrets.result.content_base64)).configs.secret.argocdServerAdminPassword
+  password    = var.argocd_admin_password
   insecure    = true
 }

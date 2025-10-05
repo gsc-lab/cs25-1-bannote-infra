@@ -14,3 +14,11 @@ variable "github_branch" {
   type        = string
   default     = "dev"
 }
+
+# TODO: 실제 이용시에는 주입 필요
+variable "argocd_admin_password" {
+  description = "ArgoCD admin password (plaintext for provider login)"
+  type        = string
+  default     = "test"
+  sensitive   = true
+}
