@@ -6,4 +6,6 @@ resource "argocd_repository" "infra_repo" {
 
   username = "git"
   password = var.github_pat_token
+
+  depends_on = [helm_release.argocd]
 }
