@@ -6,6 +6,16 @@ persistence:
   enabled: true
   size: 10Gi
 
+# Init container chown 비활성화
+initChownData:
+  enabled: false
+
+# SecurityContext로 권한 설정
+securityContext:
+  runAsUser: 472
+  runAsGroup: 472
+  fsGroup: 472
+
 podLabels:
   app: grafana
   version: v1
