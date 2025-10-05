@@ -18,8 +18,10 @@ repoServer:
       value: /custom-tools/sops
     - name: HELM_SECRETS_BACKEND
       value: sops
+    - name: PATH # sops가 age를 찾는 경로
+      value: /custom-tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-  # Init container: helm-secrets + sops 설치
+  # Init container: helm-secrets + sops + age 설치
   initContainers:
     - name: install-helm-secrets
       image: alpine:3.18
@@ -28,8 +30,14 @@ repoServer:
         - -c
         - |
           set -e
+          # age 설치
+          apk add --no-cache age
+          cp /usr/bin/age /custom-tools/age
+          cp /usr/bin/age-keygen /custom-tools/age-keygen
+          chmod +x /custom-tools/age /custom-tools/age-keygen
+
           # SOPS 설치
-          wget -qO /custom-tools/sops https://github.com/getsops/sops/releases/download/v3.8.1/sops-v3.8.1.linux.amd64
+          wget -qO /custom-tools/sops https://github.com/getsops/sops/releases/download/v3.9.3/sops-v3.9.3.linux.amd64
           chmod +x /custom-tools/sops
 
           # helm-secrets 플러그인 설치
