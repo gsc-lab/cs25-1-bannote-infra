@@ -18,6 +18,10 @@ repoServer:
       value: /custom-tools/sops
     - name: HELM_SECRETS_BACKEND
       value: sops
+    - name: HELM_SECRETS_WRAPPER_ENABLED
+      value: "true"
+    - name: HELM_SECRETS_VALUES_ALLOW_ABSOLUTE_PATH
+      value: "true"
     - name: PATH # sops가 age를 찾는 경로
       value: /custom-tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
