@@ -2,11 +2,14 @@
 name: Deploy Kubernetes on LXD Instances
 
 on:
-  # deploy-lxd 워크플로우가 성공 했을 때 실행
+  # deploy-lxd 워크플로우가 완료 된 후 실행
   workflow_run:
     workflows: ["Deploy LXD Infrastructure"]
     types:
       - completed
+    branches:
+      - main
+      - dev
   push:
     branches:
       - dev
@@ -17,6 +20,8 @@ on:
 
 jobs:
   setup-k8s-on-all-runners:
+    # workflow_run으로 실행될 때는 성공한 경우만
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on:
       [
         self-hosted,
@@ -55,25 +60,35 @@ jobs:
           mkdir -p /home/bannote/.terraform-state
           chmod 755 /home/bannote/.terraform-state
 
-      - name: Setup SOPS Age key
+      - name: Create ArgoCD namespace and helm-secrets Secret
         run: |
-          # Age keys 디렉터리 생성
-          mkdir -p /home/bannote/.config/sops/age
+          export KUBECONFIG=/home/bannote/.kube/config
 
-          # Age private key 파일 생성
-          echo "${{ secrets.AGE_PRIVATE_KEY }}" > /home/bannote/.config/sops/age/keys.txt
-          chmod 600 /home/bannote/.config/sops/age/keys.txt
+          # Create argocd namespace if not exists
+          kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+
+          # Create age private key secret for helm-secrets
+          echo "${{ secrets.AGE_PRIVATE_KEY }}" > /tmp/key.txt
+          kubectl create secret generic helm-secrets-private-keys \
+            --from-file=key.txt=/tmp/key.txt \
+            --namespace argocd \
+            --dry-run=client -o yaml | kubectl apply -f -
+          rm /tmp/key.txt
+
+          echo "✅ ArgoCD helm-secrets private key configured"
 
       - name: Terraform Apply for ${{ matrix.instance }}
         working-directory: ./k8s-infra
-        env:
-          TF_VAR_runner_name: ${{ runner.name }}
         run: |
           echo "Setting up Kubernetes for bannote-${{ env.ENV }}-${{ matrix.instance }}"
           echo "Runner name: ${{ runner.name }}"
+          echo "GitHub branch: ${{ github.ref_name }}"
 
           terraform init
-          terraform apply -auto-approve
+          terraform apply -auto-approve \
+            -var="runner_name=${{ runner.name }}" \
+            -var="github_branch=${{ github.ref_name }}" \
+            -var="github_pat_token=${{ secrets.RUNNER_PROVISIONING_PAT }}"
 
       - name: Verify Kubernetes cluster
         run: |

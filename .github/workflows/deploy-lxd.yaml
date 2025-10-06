@@ -181,6 +181,26 @@ jobs:
 
           echo "✅ Terraform installation completed!"
 
+      - name: Install Helm and helm-secrets on LXD instances
+        run: |
+          echo "Installing Helm and helm-secrets on all instances..."
+          INVENTORY_PATH="$HOME/inventory/inventory-${{ env.ENV }}"
+
+          ansible-playbook -i "$INVENTORY_PATH" ansible/playbooks/install-helm.yaml
+
+          echo "✅ Helm and helm-secrets installation completed!"
+
+      - name: Setup SOPS Age key on LXD instances
+        run: |
+          echo "Setting up SOPS Age key on all instances..."
+          INVENTORY_PATH="$HOME/inventory/inventory-${{ env.ENV }}"
+
+          ansible all -i "$INVENTORY_PATH" -m shell -a "mkdir -p /home/bannote/.config/sops/age && chmod 755 /home/bannote/.config/sops/age" --become-user=bannote
+
+          ansible all -i "$INVENTORY_PATH" -m copy -a "content='${{ secrets.AGE_PRIVATE_KEY }}' dest=/home/bannote/.config/sops/age/keys.txt mode=0600 owner=bannote group=bannote"
+
+          echo "✅ SOPS Age key setup completed!"
+
       - name: Install GitHub Actions Runner on LXD instances
         run: |
           echo "Installing GitHub Actions Runner on all instances..."

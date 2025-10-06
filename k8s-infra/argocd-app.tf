@@ -1,8 +1,11 @@
-# TODO: 지속적인 CD 작업을 위해 CI 작업 시 1회성으로 가져오는 파일이 아닌, 깃허브 리포지토리의 파일을 참조하도록 변경
-
 # ======================
 # Infra Project Applications
 # ======================
+
+locals {
+  github_repo_url = "https://github.com/gsc-lab/cs25-1-bannote-infra.git"
+  github_revision = var.github_branch
+}
 
 # Istio Base (CRDs)
 resource "argocd_application" "istio_base" {
@@ -20,9 +23,9 @@ resource "argocd_application" "istio_base" {
     }
 
     source {
-      repo_url        = "https://istio-release.storage.googleapis.com/charts"
-      chart           = "base"
-      target_revision = "1.27.1"
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/istio-base"
 
       helm {
         release_name = "istio-base"
@@ -39,7 +42,10 @@ resource "argocd_application" "istio_base" {
     }
   }
 
-  depends_on = [argocd_project.infra]
+  depends_on = [
+    argocd_project.infra, 
+    argocd_repository.infra_repo
+  ]
 }
 
 # Istio Istiod (Control Plane)
@@ -58,14 +64,16 @@ resource "argocd_application" "istio_istiod" {
     }
 
     source {
-      repo_url        = "https://istio-release.storage.googleapis.com/charts"
-      chart           = "istiod"
-      target_revision = "1.27.1"
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/istio-istiod"
 
       helm {
         release_name = "istiod"
-
-        values = file("${path.module}/../helm/values/istiod/shared/values.yaml")
+        value_files  = [
+          "values/shared/values.yaml",
+          "secrets://values/shared/secrets.sops.yaml"
+        ]
       }
     }
 
@@ -81,7 +89,8 @@ resource "argocd_application" "istio_istiod" {
 
   depends_on = [
     argocd_application.istio_base,
-    argocd_project.infra
+    argocd_project.infra,
+    argocd_repository.infra_repo
   ]
 }
 
@@ -101,14 +110,16 @@ resource "argocd_application" "istio_gateway" {
     }
 
     source {
-      repo_url        = "https://istio-release.storage.googleapis.com/charts"
-      chart           = "gateway"
-      target_revision = "1.27.1"
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/istio-gateway"
 
       helm {
         release_name = "istio-ingressgateway"
-
-        values = file("${path.module}/../helm/values/istio-gateway/shared/values.yaml")
+        value_files  = [
+          "values/shared/values.yaml",
+          "secrets://values/shared/secrets.sops.yaml"
+        ]
       }
     }
 
@@ -125,7 +136,8 @@ resource "argocd_application" "istio_gateway" {
   depends_on = [
     argocd_application.istio_istiod,
     argocd_project.infra,
-    kubernetes_namespace.istio_ingress
+    kubernetes_namespace.istio_ingress,
+    argocd_repository.infra_repo
   ]
 }
 
@@ -149,14 +161,16 @@ resource "argocd_application" "prometheus" {
     }
 
     source {
-      repo_url        = "https://prometheus-community.github.io/helm-charts"
-      chart           = "prometheus"
-      target_revision = "25.28.0"
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/prometheus"
 
       helm {
         release_name = "prometheus"
-
-        values = file("${path.module}/../helm/values/prometheus/shared/values.yaml")
+        value_files  = [
+          "values/shared/values.yaml",
+          "secrets://values/shared/secrets.sops.yaml"
+        ]
       }
     }
 
@@ -172,7 +186,8 @@ resource "argocd_application" "prometheus" {
 
   depends_on = [
     argocd_application.istio_istiod,
-    argocd_project.infra
+    argocd_project.infra,
+    argocd_repository.infra_repo
   ]
 }
 
@@ -192,14 +207,16 @@ resource "argocd_application" "grafana" {
     }
 
     source {
-      repo_url        = "https://grafana.github.io/helm-charts"
-      chart           = "grafana"
-      target_revision = "8.8.2"
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/grafana"
 
       helm {
         release_name = "grafana"
-
-        values = file("${path.module}/../helm/values/grafana/shared/values.yaml")
+        value_files  = [
+          "values/shared/values.yaml",
+          "secrets://values/shared/secrets.sops.yaml"
+        ]
       }
     }
 
@@ -215,7 +232,8 @@ resource "argocd_application" "grafana" {
 
   depends_on = [
     argocd_application.prometheus,
-    argocd_project.infra
+    argocd_project.infra,
+    argocd_repository.infra_repo
   ]
 }
 
@@ -235,14 +253,16 @@ resource "argocd_application" "kiali" {
     }
 
     source {
-      repo_url        = "https://kiali.org/helm-charts"
-      chart           = "kiali-server"
-      target_revision = "2.3.0"
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/kiali"
 
       helm {
         release_name = "kiali"
-
-        values = file("${path.module}/../helm/values/kiali/shared/values.yaml")
+        value_files  = [
+          "values/shared/values.yaml",
+          "secrets://values/shared/secrets.sops.yaml"
+        ]
       }
     }
 
@@ -260,6 +280,7 @@ resource "argocd_application" "kiali" {
     argocd_application.istio_istiod,
     argocd_application.prometheus,
     argocd_application.grafana,
-    argocd_project.infra
+    argocd_project.infra,
+    argocd_repository.infra_repo
   ]
 }
