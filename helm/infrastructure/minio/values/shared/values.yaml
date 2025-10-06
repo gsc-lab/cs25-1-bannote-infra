@@ -7,8 +7,8 @@ mode: standalone
 service:
   type: NodePort
   nodePorts:
-    api: 30090 # MinIO API (S3)
-    console: 30091 # MinIO Console (Web UI)
+    api: 30008 # MinIO API (S3)
+    console: 30009 # MinIO Console (Web UI)
   ports:
     api: 9000
     console: 9001

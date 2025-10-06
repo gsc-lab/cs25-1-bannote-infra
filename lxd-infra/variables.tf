@@ -90,6 +90,8 @@ variable "common_ports" {
     { name = "argocd-https-dashboard",  port = 30005, use_direct_mapping = false }, // 5
     { name = "prometheus-dashboard",    port = 30006, use_direct_mapping = false }, // 6
     { name = "grafana-dashboard",       port = 30007, use_direct_mapping = false }, // 7
+    { name = "minio-api",               port = 30008, use_direct_mapping = false }, // 8
+    { name = "minio-dashboard",         port = 30009, use_direct_mapping = false }  // 9
 
     # 지정 번호 할당 (listen = base_port + port)
     # listen: base_port + 80   (e.g., 8080)
