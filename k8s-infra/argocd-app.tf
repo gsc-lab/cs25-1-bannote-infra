@@ -42,7 +42,10 @@ resource "argocd_application" "istio_base" {
     }
   }
 
-  depends_on = [argocd_project.infra]
+  depends_on = [
+    argocd_project.infra, 
+    argocd_repository.infra_repo
+  ]
 }
 
 # Istio Istiod (Control Plane)
