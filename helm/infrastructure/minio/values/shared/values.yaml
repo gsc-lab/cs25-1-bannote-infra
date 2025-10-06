@@ -1,0 +1,76 @@
+# MinIO Configuration for Bannote (Official MinIO Chart)
+
+# Deployment mode
+mode: standalone
+
+# Service configuration (API)
+service:
+  type: NodePort
+  port: "9000"
+  nodePort: 30008 # MinIO API (S3)
+
+# Console service (Web UI)
+consoleService:
+  type: NodePort
+  port: "9001"
+  nodePort: 30009 # MinIO Console
+
+# Persistence
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: ""
+
+# Resource limits
+resources:
+  requests:
+    memory: 512Mi
+
+# Pod labels for Istio
+podLabels:
+  app: minio
+  version: v1
+
+# Buckets to create
+buckets:
+  - name: bannote-backup
+    policy: none
+    purge: false
+
+  - name: bannote-uploads
+    policy: none
+    purge: false
+
+# Policies (official MinIO chart structure)
+policies:
+  - name: bannote-backup-policy
+    statements:
+      - resources:
+          - "arn:aws:s3:::bannote-backup"
+          - "arn:aws:s3:::bannote-backup/*"
+        actions:
+          - "s3:GetBucketLocation"
+          - "s3:ListBucket"
+          - "s3:GetObject"
+          - "s3:PutObject"
+          - "s3:DeleteObject"
+
+  - name: bannote-uploads-readonly
+    statements:
+      - resources:
+          - "arn:aws:s3:::bannote-uploads"
+          - "arn:aws:s3:::bannote-uploads/*"
+        actions:
+          - "s3:GetBucketLocation"
+          - "s3:ListBucket"
+          - "s3:GetObject"
+
+# Users
+users:
+  - accessKey: backup-service
+    secretKey: ""
+    policy: bannote-backup-policy
+
+  - accessKey: app-readonly
+    secretKey: ""
+    policy: bannote-uploads-readonly

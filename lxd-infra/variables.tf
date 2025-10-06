@@ -16,6 +16,7 @@ variable "clusters" {
     image        = string
     cpu_limit    = string
     memory_limit = string
+    disk_size    = string
     base_port    = number
   }))
   default = {
@@ -24,6 +25,7 @@ variable "clusters" {
       image        = "ubuntu:22.04"
       cpu_limit    = "4"
       memory_limit = "8GB"
+      disk_size    = "200GB"
       base_port    = 8000
     }
     "bannote-main-stg" = {
@@ -31,6 +33,7 @@ variable "clusters" {
       image        = "ubuntu:22.04"
       cpu_limit    = "2"
       memory_limit = "4GB"
+      disk_size    = "50GB"
       base_port    = 8100
     }
     "bannote-main-dev" = {
@@ -38,6 +41,7 @@ variable "clusters" {
       image        = "ubuntu:22.04"
       cpu_limit    = "2"
       memory_limit = "4GB"
+      disk_size    = "50GB"
       base_port    = 8200
     }
     "bannote-dev-prod" = {
@@ -45,6 +49,7 @@ variable "clusters" {
       image        = "ubuntu:22.04"
       cpu_limit    = "4"
       memory_limit = "8GB"
+      disk_size    = "50GB"
       base_port    = 9000
     }
     "bannote-dev-stg" = {
@@ -52,6 +57,7 @@ variable "clusters" {
       image        = "ubuntu:22.04"
       cpu_limit    = "4"
       memory_limit = "8GB"
+      disk_size    = "30GB"
       base_port    = 9100
     }
     "bannote-dev-dev" = {
@@ -59,6 +65,7 @@ variable "clusters" {
       image        = "ubuntu:22.04"
       cpu_limit    = "4"
       memory_limit = "8GB"
+      disk_size    = "30GB"
       base_port    = 9200
     }
   }
@@ -83,6 +90,8 @@ variable "common_ports" {
     { name = "argocd-https-dashboard",  port = 30005, use_direct_mapping = false }, // 5
     { name = "prometheus-dashboard",    port = 30006, use_direct_mapping = false }, // 6
     { name = "grafana-dashboard",       port = 30007, use_direct_mapping = false }, // 7
+    { name = "minio-api",               port = 30008, use_direct_mapping = false }, // 8
+    { name = "minio-dashboard",         port = 30009, use_direct_mapping = false }  // 9
 
     # 지정 번호 할당 (listen = base_port + port)
     # listen: base_port + 80   (e.g., 8080)
