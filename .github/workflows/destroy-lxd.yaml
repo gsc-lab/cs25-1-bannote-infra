@@ -83,9 +83,11 @@ jobs:
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "ENV=main" >> $GITHUB_ENV
             echo "WORKSPACE_NAME=bannote-server-main" >> $GITHUB_ENV
+            echo "LXD_HOST_IP=${{ secrets.LXD_HOST_IP_MAIN }}" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
             echo "ENV=dev" >> $GITHUB_ENV
             echo "WORKSPACE_NAME=bannote-server-dev" >> $GITHUB_ENV
+            echo "LXD_HOST_IP=${{ secrets.LXD_HOST_IP_DEV }}" >> $GITHUB_ENV
           else
             echo "Error: Destroy workflow must be run from 'main' or 'dev' branch."
             exit 1
@@ -134,6 +136,7 @@ jobs:
         working-directory: ./lxd-infra
         env:
           TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_lxd_host_ip: ${{ env.LXD_HOST_IP }}
           TF_INPUT: false
           TF_CLI_ARGS: "-no-color"
         run: |
