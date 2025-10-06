@@ -284,3 +284,53 @@ resource "argocd_application" "kiali" {
     argocd_repository.infra_repo
   ]
 }
+
+# ======================
+# Storage
+# ======================
+
+# MinIO (Object Storage)
+resource "argocd_application" "minio" {
+  metadata {
+    name      = "minio"
+    namespace = "argocd"
+  }
+
+  spec {
+    project = "infra"
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "minio"
+    }
+
+    source {
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/minio"
+
+      helm {
+        release_name = "minio"
+        value_files  = [
+          "values/shared/values.yaml",
+          "secrets://values/shared/secrets.sops.yaml"
+        ]
+      }
+    }
+
+    sync_policy {
+      automated {
+        prune     = true
+        self_heal = true
+      }
+
+      sync_options = []
+    }
+  }
+
+  depends_on = [
+    kubernetes_namespace.minio,
+    argocd_project.infra,
+    argocd_repository.infra_repo
+  ]
+}

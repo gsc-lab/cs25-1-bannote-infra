@@ -1,0 +1,101 @@
+# MinIO Configuration for Bannote
+
+# Deployment mode (standalone/distributed)
+mode: standalone
+
+# Service configuration
+service:
+  type: NodePort
+  nodePorts:
+    api: 30090 # MinIO API (S3)
+    console: 30091 # MinIO Console (Web UI)
+  ports:
+    api: 9000
+    console: 9001
+
+# Persistence
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: "" # Use default storage class
+
+# Resource limits
+resources:
+  limits:
+    memory: 2Gi
+    cpu: 1000m
+  requests:
+    memory: 512Mi
+    cpu: 250m
+
+# Pod labels for Istio
+podLabels:
+  app: minio
+  version: v1
+
+# Provisioning - buckets, users, policies
+provisioning:
+  enabled: true
+
+  # Buckets
+  buckets:
+    - name: bannote-backup
+      versioning: false
+      withLock: false
+
+    - name: bannote-uploads
+      versioning: false
+      withLock: false
+
+  # Policies
+  policies:
+    - name: bannote-backup-policy
+      statements:
+        - resources:
+            - "arn:aws:s3:::bannote-backup"
+          actions:
+            - "s3:GetBucketLocation"
+            - "s3:ListBucket"
+        - resources:
+            - "arn:aws:s3:::bannote-backup/*"
+          actions:
+            - "s3:GetObject"
+            - "s3:PutObject"
+            - "s3:DeleteObject"
+
+    - name: bannote-uploads-readonly
+      statements:
+        - resources:
+            - "arn:aws:s3:::bannote-uploads"
+          actions:
+            - "s3:GetBucketLocation"
+            - "s3:ListBucket"
+        - resources:
+            - "arn:aws:s3:::bannote-uploads/*"
+          actions:
+            - "s3:GetObject"
+
+  # Users (passwords in secrets.sops.yaml)
+  users:
+    - username: backup-service
+      password: "" # Set in secrets.sops.yaml
+      disabled: false
+      policies:
+        - bannote-backup-policy
+      setPolicies: true
+
+    - username: app-readonly
+      password: "" # Set in secrets.sops.yaml
+      disabled: false
+      policies:
+        - bannote-uploads-readonly
+      setPolicies: true
+
+# Ingress (optional - for external access)
+ingress:
+  enabled: false
+
+# Metrics for Prometheus
+metrics:
+  serviceMonitor:
+    enabled: false
