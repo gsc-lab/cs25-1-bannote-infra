@@ -47,6 +47,16 @@ resource "lxd_instance" "cluster_vms" {
   }
 
   device {
+    name = "root"
+    type = "disk"
+    properties = {
+      pool = "default"
+      path = "/"
+      size = each.value.disk_size
+    }
+  }
+
+  device {
     name = "eth0"
     type = "nic"
     properties = {

@@ -16,6 +16,7 @@ variable "clusters" {
     image        = string
     cpu_limit    = string
     memory_limit = string
+    disk_size    = string
     base_port    = number
   }))
   default = {
@@ -24,6 +25,7 @@ variable "clusters" {
       image        = "ubuntu:22.04"
       cpu_limit    = "4"
       memory_limit = "8GB"
+      disk_size    = "200GB"
       base_port    = 8000
     }
     "bannote-main-stg" = {
@@ -31,6 +33,7 @@ variable "clusters" {
       image        = "ubuntu:22.04"
       cpu_limit    = "2"
       memory_limit = "4GB"
+      disk_size    = "50GB"
       base_port    = 8100
     }
     "bannote-main-dev" = {
@@ -38,6 +41,7 @@ variable "clusters" {
       image        = "ubuntu:22.04"
       cpu_limit    = "2"
       memory_limit = "4GB"
+      disk_size    = "50GB"
       base_port    = 8200
     }
     "bannote-dev-prod" = {
@@ -45,6 +49,7 @@ variable "clusters" {
       image        = "ubuntu:22.04"
       cpu_limit    = "4"
       memory_limit = "8GB"
+      disk_size    = "50GB"
       base_port    = 9000
     }
     "bannote-dev-stg" = {
@@ -52,6 +57,7 @@ variable "clusters" {
       image        = "ubuntu:22.04"
       cpu_limit    = "4"
       memory_limit = "8GB"
+      disk_size    = "30GB"
       base_port    = 9100
     }
     "bannote-dev-dev" = {
@@ -59,6 +65,7 @@ variable "clusters" {
       image        = "ubuntu:22.04"
       cpu_limit    = "4"
       memory_limit = "8GB"
+      disk_size    = "30GB"
       base_port    = 9200
     }
   }
