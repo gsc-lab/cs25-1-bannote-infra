@@ -334,3 +334,55 @@ resource "argocd_application" "minio" {
     argocd_repository.infra_repo
   ]
 }
+
+# ======================
+# Service Project Applications
+# ======================
+
+# API Gateway
+resource "argocd_application" "api-gateway" {
+  metadata {
+    name      = "api-gateway"
+    namespace = "argocd"
+  }
+
+  spec {
+    project = "service"
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "api-gateway"
+    }
+
+    source {
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/service/api-gateway"
+
+      helm {
+        release_name = "api-gateway"
+        value_files  = [
+          "values/${local.environment}/values.yaml",
+          "secrets://values/${local.environment}/secrets.sops.yaml"
+        ]
+      }
+    }
+
+    sync_policy {
+      automated {
+        prune     = true
+        self_heal = true
+      }
+
+      sync_options = []
+    }
+  }
+
+  depends_on = [
+    argocd_application.istio_istiod,
+    argocd_application.prometheus,
+    argocd_application.grafana,
+    argocd_project.infra,
+    argocd_repository.infra_repo
+  ]
+}
