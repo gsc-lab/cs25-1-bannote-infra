@@ -1,4 +1,4 @@
 image:
-  repository: gsc-lab/cs25-1-bannote-api-gateway
+  repository: ghcr.io/gsc-lab/cs25-1-bannote-api-gateway
   pullPolicy: IfNotPresent
   tag: "test"
