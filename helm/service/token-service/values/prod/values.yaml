@@ -1,0 +1,7 @@
+image:
+  repository: ghcr.io/gsc-lab/cs25-1-bannote-token-service
+  pullPolicy: IfNotPresent
+  tag: "test"
+
+secrets:
+  jwtSecret: ""
