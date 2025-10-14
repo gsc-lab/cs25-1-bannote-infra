@@ -15,7 +15,7 @@ variable "github_branch" {
   default     = "dev"
 }
 
-# TODO: 실제 이용시에는 주입 필요
+# TODO: 프로바이더는 secrets 복호화 작업 이전에 초기화 되므로, 실제 이용시에는 외부에서 별도 주입 필요
 variable "argocd_admin_password" {
   description = "ArgoCD admin password (plaintext for provider login)"
   type        = string
