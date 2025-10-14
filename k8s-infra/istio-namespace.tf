@@ -31,3 +31,14 @@ resource "kubernetes_namespace" "api-gateway" {
     }
   }
 }
+
+# Token Service - Token Service 서비스 전용 네임스페이스
+resource "kubernetes_namespace" "token-service" {
+  metadata {
+    name = "token-service"
+    labels = {
+      "name" = "token-service"
+      "istio-injection" = "enabled"
+    }
+  }
+}
