@@ -44,6 +44,16 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          env:
+            - name: SERVER_PORT
+              value: {{ .Values.env.serverPort | quote }}
+            - name: JWT_EXPIRATION_MINUTES
+              value: {{ .Values.env.jwtExpirationMinutes | quote }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "token-service.fullname" . }}-secrets
+                  key: jwt-secret
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
