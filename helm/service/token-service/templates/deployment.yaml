@@ -49,11 +49,13 @@ spec:
               value: {{ .Values.env.serverPort | quote }}
             - name: JWT_EXPIRATION_MINUTES
               value: {{ .Values.env.jwtExpirationMinutes | quote }}
-            - name: JWT_SECRET
+            - name: PUBLIC_KEY_BASE64
+              value: {{ .Values.env.publicKeyBase64 | quote }}
+            - name: PRIVATE_KEY_BASE64
               valueFrom:
                 secretKeyRef:
                   name: {{ include "token-service.fullname" . }}-secrets
-                  key: jwt-secret
+                  key: private-key
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
