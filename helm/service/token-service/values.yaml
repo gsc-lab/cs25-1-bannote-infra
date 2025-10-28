@@ -124,9 +124,10 @@ tolerations: []
 
 affinity: {}
 
-secrets:
-  jwtSecret: ""
-
 env:
   serverPort: "9090"
   jwtExpirationMinutes: "15"
+  publicKeyBase64: ""
+
+secrets:
+  privateKeyBase64: ""
