@@ -40,6 +40,16 @@ resource "argocd_application" "istio_base" {
 
       sync_options = ["CreateNamespace=true"]
     }
+
+    ignore_difference{
+      group         = "admissionregistration.k8s.io"
+      kind          = "ValidatingWebhookConfiguration"
+      name          = "istiod-default-validator"
+      json_pointers = [
+        "/webhooks/0/failurePolicy",
+        "/webhooks/0/clientConfig/caBundle"
+      ]
+    }
   }
 
   depends_on = [
@@ -84,6 +94,25 @@ resource "argocd_application" "istio_istiod" {
       }
 
       sync_options = []
+    }
+
+    ignore_difference {
+      group = "admissionregistration.k8s.io"
+      kind  = "MutatingWebhookConfiguration"
+      name  = "istio-sidecar-injector"
+      json_pointers = [
+        "/webhooks"
+      ]
+    }
+
+    ignore_difference {
+      group         = "admissionregistration.k8s.io"
+      kind          = "ValidatingWebhookConfiguration"
+      name          = "istio-validator-istio-system"
+      json_pointers = [
+        "/webhooks/0/failurePolicy",
+        "/webhooks/0/clientConfig/caBundle"
+      ]
     }
   }
 
