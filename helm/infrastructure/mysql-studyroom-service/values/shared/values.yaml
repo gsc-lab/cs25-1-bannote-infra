@@ -1,0 +1,80 @@
+# MySQL Configuration for Studyroom Service
+
+# Architecture
+architecture: standalone
+
+# TODO Bitnami 무료 지원 종료로 인해 일시적으로 legacy 이미지 이용
+image:
+  registry: docker.io
+  repository: bitnamilegacy/mysql
+  tag: 9.4.0-debian-12-r1
+
+# Database Configuration
+auth:
+  createDatabase: true
+  database: "studyroom_service_db"
+  # username, password, rootPassword는 secrets.sops.yaml에서 관리
+
+# Istio Sidecar Injection 비활성화
+primary:
+  podAnnotations:
+    sidecar.istio.io/inject: "false"
+
+  # Service Type (내부 접근만)
+  service:
+    type: ClusterIP
+    ports:
+      mysql: 3306
+
+  # Persistence
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: ""
+
+  # Resource Limits
+  resourcesPreset: "small"
+  # resources:
+  #   requests:
+  #     memory: 512Mi
+  #     cpu: 250m
+  #   limits:
+  #     memory: 1Gi
+  #     cpu: 500m
+
+  # Pod Labels
+  podLabels:
+    app: mysql-studyroom-service
+    version: v1
+
+# Network Policy (특정 네임스페이스만 접근 허용)
+networkPolicy:
+  enabled: true
+  allowExternal: false
+  extraIngress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: studyroom-service
+      ports:
+        - protocol: TCP
+          port: 3306
+
+# Metrics (Prometheus)
+metrics:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/mysqld-exporter
+    tag: 0.17.2-debian-12-r16
+  serviceMonitor:
+    enabled: false
+    interval: 30s
+
+# Volume Permissions (init container)
+volumePermissions:
+  enabled: false
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/os-shell
+    tag: 12-debian-12-r50
