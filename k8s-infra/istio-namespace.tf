@@ -16,7 +16,18 @@ resource "kubernetes_namespace" "minio" {
     name = "minio"
     labels = {
       "name" = "minio"
-      "istio-injection" = "enabled"
+      "istio-injection" = "disabled"
+    }
+  }
+}
+
+# MySql Namespace - MySql 전용 네임스페이스
+resource "kubernetes_namespace" "mysql" {
+  metadata {
+    name = "mysql"
+    labels = {
+      "name" = "mysql"
+      "istio-injection" = "disabled"
     }
   }
 }
