@@ -410,6 +410,98 @@ resource "argocd_application" "mysql-user-service" {
   ]
 }
 
+resource "argocd_application" "mysql-schedule-service" {
+  metadata {
+    name      = "mysql-schedule-service"
+    namespace = "argocd"
+  }
+
+  spec {
+    project = "infra"
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "mysql"
+    }
+
+    source {
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/mysql-schedule-service"
+
+      helm {
+        release_name = "mysql-schedule-service"
+        value_files  = [
+          "values.yaml",
+          "values/shared/values.yaml",
+          "secrets://values/shared/secrets.sops.yaml"
+        ]
+      }
+    }
+
+    sync_policy {
+      automated {
+        prune     = true
+        self_heal = true
+      }
+
+      sync_options = []
+    }
+  }
+
+  depends_on = [
+    kubernetes_namespace.mysql,
+    argocd_project.infra,
+    argocd_repository.infra_repo
+  ]
+}
+
+resource "argocd_application" "mysql-studyroom-service" {
+  metadata {
+    name      = "mysql-studyroom-service"
+    namespace = "argocd"
+  }
+
+  spec {
+    project = "infra"
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "mysql"
+    }
+
+    source {
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/mysql-studyroom-service"
+
+      helm {
+        release_name = "mysql-studyroom-service"
+        value_files  = [
+          "values.yaml",
+          "values/shared/values.yaml",
+          "secrets://values/shared/secrets.sops.yaml"
+        ]
+      }
+    }
+
+    sync_policy {
+      automated {
+        prune     = true
+        self_heal = true
+      }
+
+      sync_options = []
+    }
+  }
+
+  depends_on = [
+    kubernetes_namespace.mysql,
+    argocd_project.infra,
+    argocd_repository.infra_repo
+  ]
+}
+
 # ======================
 # Service Project Applications
 # ======================
