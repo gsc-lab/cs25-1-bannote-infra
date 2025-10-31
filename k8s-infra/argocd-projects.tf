@@ -32,6 +32,10 @@ resource "argocd_project" "infra" {
       server    = "https://kubernetes.default.svc"
       namespace = "minio"
     }
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "mysql"
+    }
 
     # 클러스터 리소스 생성 권한
     cluster_resource_whitelist {

@@ -1,0 +1,62 @@
+# MySQL Configuration for User Service
+
+# Architecture
+architecture: standalone
+
+# Database Configuration
+auth:
+  createDatabase: true
+  database: "user_service_db"
+  # username, password, rootPassword는 secrets.sops.yaml에서 관리
+
+# Istio Sidecar Injection 비활성화
+primary:
+  podAnnotations:
+    sidecar.istio.io/inject: "false"
+
+  # Service Type (내부 접근만)
+  service:
+    type: ClusterIP
+    ports:
+      mysql: 3306
+
+  # Persistence
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: ""
+
+  # Resource Limits
+  resourcesPreset: "small"
+  # resources:
+  #   requests:
+  #     memory: 512Mi
+  #     cpu: 250m
+  #   limits:
+  #     memory: 1Gi
+  #     cpu: 500m
+
+  # Pod Labels
+  podLabels:
+    app: mysql-user-service
+    version: v1
+
+# Network Policy (특정 네임스페이스만 접근 허용)
+networkPolicy:
+  enabled: true
+  allowExternal: false
+  extraIngress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: user-service
+      ports:
+        - protocol: TCP
+          port: 3306
+
+# Metrics (Prometheus)
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
