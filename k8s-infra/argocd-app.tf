@@ -386,6 +386,7 @@ resource "argocd_application" "mysql-user-service" {
       helm {
         release_name = "mysql-user-service"
         value_files  = [
+          "values.yaml",
           "values/shared/values.yaml",
           "secrets://values/shared/secrets.sops.yaml"
         ]
