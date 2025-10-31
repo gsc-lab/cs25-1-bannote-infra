@@ -3,6 +3,12 @@
 # Architecture
 architecture: standalone
 
+# TODO Bitnami 무료 지원 종료로 인해 일시적으로 legacy 이미지 이용
+image:
+  registry: docker.io
+  repository: bitnamilegacy/mysql
+  tag: 9.4.0-debian-12-r1
+
 # Database Configuration
 auth:
   createDatabase: true
@@ -57,6 +63,18 @@ networkPolicy:
 # Metrics (Prometheus)
 metrics:
   enabled: true
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/mysqld-exporter
+    tag: 0.17.2-debian-12-r16
   serviceMonitor:
     enabled: false
     interval: 30s
+
+# Volume Permissions (init container)
+volumePermissions:
+  enabled: false
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/os-shell
+    tag: 12-debian-12-r50
