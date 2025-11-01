@@ -53,3 +53,14 @@ resource "kubernetes_namespace" "token-service" {
     }
   }
 }
+
+# User Service - User Service 서비스 전용 네임스페이스
+resource "kubernetes_namespace" "user-service" {
+  metadata {
+    name = "user-service"
+    labels = {
+      "name" = "user-service"
+      "istio-injection" = "enabled"
+    }
+  }
+}
