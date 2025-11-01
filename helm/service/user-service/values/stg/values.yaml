@@ -1,2 +1,16 @@
 image:
-  tag: "test"
+  repository: kyumin1227/bannote-user-service
+  pullPolicy: IfNotPresent
+  tag: ""
+
+# Environment variables
+env:
+  GRPC_PORT: "9090"
+  DB_HOST: "mysql-user-service.mysql.svc.cluster.local"
+  DB_PORT: "3306"
+  DB_NAME: "user_service_db"
+
+# Secrets
+secrets:
+  DB_USERNAME: ""
+  DB_PASSWORD: ""
