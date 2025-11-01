@@ -79,6 +79,10 @@ resource "argocd_project" "service" {
       server    = "https://kubernetes.default.svc"
       namespace = "token-service"
     }
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "user-service"
+    }
 
     # 클러스터 리소스 생성 권한 (제한적)
     cluster_resource_whitelist {

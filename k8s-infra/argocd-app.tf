@@ -597,3 +597,50 @@ resource "argocd_application" "token-service" {
     kubernetes_namespace.token-service
   ]
 }
+
+# User Service
+resource "argocd_application" "user-service" {
+  metadata {
+    name      = "user-service"
+    namespace = "argocd"
+  }
+
+  spec {
+    project = "service"
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "user-service"
+    }
+
+    source {
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/service/user-service"
+
+      helm {
+        release_name = "user-service"
+        value_files  = [
+          "values.yaml",
+          "values/${local.environment}/values.yaml",
+          "secrets://values/${local.environment}/secrets.sops.yaml"
+        ]
+      }
+    }
+
+    sync_policy {
+      automated {
+        prune     = true
+        self_heal = true
+      }
+
+      sync_options = []
+    }
+  }
+
+  depends_on = [
+    argocd_project.service,
+    argocd_repository.infra_repo,
+    kubernetes_namespace.user-service
+  ]
+}
