@@ -1,4 +1,4 @@
-# Default values for token-service.
+# Default values for user-service.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -7,7 +7,7 @@ replicaCount: 1
 
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
-  repository: ghcr.io/gsc-lab/cs25-1-bannote-token-service
+  repository: ghcr.io/gsc-lab/cs25-1-bannote-user-service
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
@@ -124,12 +124,14 @@ tolerations: []
 
 affinity: {}
 
-# TODO: 실제 환경 변수 이름으로 수정하여 deployment, secrets에서 반복문으로 가져오게 수정 예정
-
+# Environment variables
 env:
-  serverPort: "9090"
-  jwtExpirationMinutes: "15"
-  publicKeyBase64: ""
+  GRPC_PORT: "9090"
+  DB_HOST: "mysql-user-service.mysql.svc.cluster.local"
+  DB_PORT: "3306"
+  DB_NAME: "user_service_db"
 
+# Secrets
 secrets:
-  privateKeyBase64: ""
+  DB_USERNAME: ""
+  DB_PASSWORD: ""
