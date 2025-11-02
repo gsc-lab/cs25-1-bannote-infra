@@ -64,3 +64,14 @@ resource "kubernetes_namespace" "user-service" {
     }
   }
 }
+
+# Schedule Service - Schedule Service 서비스 전용 네임스페이스
+resource "kubernetes_namespace" "schedule-service" {
+  metadata {
+    name = "schedule-service"
+    labels = {
+      "name" = "schedule-service"
+      "istio-injection" = "enabled"
+    }
+  }
+}
