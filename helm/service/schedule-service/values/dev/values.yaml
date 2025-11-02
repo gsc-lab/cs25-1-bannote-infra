@@ -1,0 +1,16 @@
+image:
+  repository: kyumin1227/bannote-schedule-service
+  pullPolicy: IfNotPresent
+  tag: ""
+
+# Environment variables
+env:
+  GRPC_PORT: "9090"
+  DB_HOST: "mysql-schedule-service.mysql.svc.cluster.local"
+  DB_PORT: "3306"
+  DB_NAME: "schedule_service_db"
+
+# Secrets
+secrets:
+  DB_USERNAME: ""
+  DB_PASSWORD: ""
