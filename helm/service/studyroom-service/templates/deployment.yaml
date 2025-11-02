@@ -53,7 +53,7 @@ spec:
             - name: {{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "user-service.fullname" $ }}-secrets
+                  name: {{ include "studyroom-service.fullname" $ }}-secrets
                   key: {{ $key }}
             {{- end }}
           {{- with .Values.livenessProbe }}
