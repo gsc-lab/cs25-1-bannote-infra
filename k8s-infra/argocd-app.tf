@@ -645,7 +645,7 @@ resource "argocd_application" "user-service" {
   ]
 }
 
-# User Service
+# Schedule Service
 resource "argocd_application" "schedule-service" {
   metadata {
     name      = "schedule-service"
@@ -689,5 +689,52 @@ resource "argocd_application" "schedule-service" {
     argocd_project.service,
     argocd_repository.infra_repo,
     kubernetes_namespace.schedule-service
+  ]
+}
+
+# Studyroom Service
+resource "argocd_application" "studyroom-service" {
+  metadata {
+    name      = "studyroom-service"
+    namespace = "argocd"
+  }
+
+  spec {
+    project = "service"
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "studyroom-service"
+    }
+
+    source {
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/service/studyroom-service"
+
+      helm {
+        release_name = "studyroom-service"
+        value_files  = [
+          "values.yaml",
+          "values/${local.environment}/values.yaml",
+          "secrets://values/${local.environment}/secrets.sops.yaml"
+        ]
+      }
+    }
+
+    sync_policy {
+      automated {
+        prune     = true
+        self_heal = true
+      }
+
+      sync_options = []
+    }
+  }
+
+  depends_on = [
+    argocd_project.service,
+    argocd_repository.infra_repo,
+    kubernetes_namespace.studyroom-service
   ]
 }
