@@ -75,3 +75,14 @@ resource "kubernetes_namespace" "schedule-service" {
     }
   }
 }
+
+# Studyroom Service - Studyroom Service 서비스 전용 네임스페이스
+resource "kubernetes_namespace" "studyroom-service" {
+  metadata {
+    name = "studyroom-service"
+    labels = {
+      "name" = "studyroom-service"
+      "istio-injection" = "enabled"
+    }
+  }
+}
