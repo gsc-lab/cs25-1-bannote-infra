@@ -1,4 +1,4 @@
 image:
-  repository: ghcr.io/gsc-lab/cs25-1-bannote-api-gateway
+  repository: kyumin1227/bannote-api-gateway
   pullPolicy: IfNotPresent
   tag: "dev-fb86b06"
