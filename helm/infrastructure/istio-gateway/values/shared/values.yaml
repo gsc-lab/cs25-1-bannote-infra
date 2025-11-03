@@ -15,3 +15,22 @@ service:
       protocol: TCP
       targetPort: 443
       nodePort: 30002
+
+gateway:
+  enabled: true
+  name: external-gateway
+  namespace: istio-ingress
+  selector:
+    istio: ingressgateway
+  hosts:
+    - "*" # 프로덕션에서는 실제 도메인 사용
+  http:
+    enabled: true
+    port: 80
+    httpsRedirect: false
+  https:
+    enabled: true
+    port: 443
+    tls:
+      mode: SIMPLE
+      credentialName: external-gateway-tls
