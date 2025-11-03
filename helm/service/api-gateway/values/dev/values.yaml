@@ -2,3 +2,13 @@ image:
   repository: kyumin1227/bannote-api-gateway
   pullPolicy: IfNotPresent
   tag: "dev-c18e274"
+
+env:
+  SERVER_PORT: "8080"
+  USER_SERVICE_ADDR: "user-service.user-service.svc.cluster.local:9090"
+  TOKEN_SERVICE_ADDR: "token-service.token-service.svc.cluster.local:9090"
+  SCHEDULE_SERVICE_ADDR: "schedule-service.schedule-service.svc.cluster.local:9090"
+  STUDYROOM_SERVICE_ADDR: "studyroom-service.studyroom-service.svc.cluster.local:9090"
+  GOOGLE_CLIENT_ID: "616869349585-5kkpb0gvqlaq3kl4l67n6tq1nt6fee32.apps.googleusercontent.com"
+  FRONTEND_URL: "http://localhost:5173"
+  COOKIE_MAX_AGE: "900"
