@@ -127,3 +127,27 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# Istio VirtualService configuration
+virtualService:
+  enabled: true
+  annotations: {}
+  hosts:
+    - "*"
+  gateways:
+    - istio-ingress/external-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /api
+      # rewrite:
+      #   uri: /
+      # timeout: 30s
+      # retries:
+      #   attempts: 3
+      #   perTryTimeout: 10s
+      #   retryOn: 5xx,reset,connect-failure,refused-stream
+      # weight: 100
+    - match:
+        - uri:
+            prefix: /

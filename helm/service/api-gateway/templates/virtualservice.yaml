@@ -1,0 +1,42 @@
+{{- if .Values.virtualService.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "api-gateway.fullname" . }}-vs
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "api-gateway.labels" . | nindent 4 }}
+  {{- with .Values.virtualService.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  hosts:
+    {{- toYaml .Values.virtualService.hosts | nindent 4 }}
+  gateways:
+    {{- toYaml .Values.virtualService.gateways | nindent 4 }}
+  http:
+    {{- range .Values.virtualService.http }}
+    - match:
+        {{- toYaml .match | nindent 8 }}
+      {{- if .rewrite }}
+      rewrite:
+        {{- toYaml .rewrite | nindent 8 }}
+      {{- end }}
+      {{- if .timeout }}
+      timeout: {{ .timeout }}
+      {{- end }}
+      {{- if .retries }}
+      retries:
+        {{- toYaml .retries | nindent 8 }}
+      {{- end }}
+      route:
+        - destination:
+            host: {{ include "api-gateway.fullname" $ }}.{{ $.Release.Namespace }}.svc.cluster.local
+            port:
+              number: {{ $.Values.service.port }}
+          {{- if .weight }}
+          weight: {{ .weight }}
+          {{- end }}
+    {{- end }}
+{{- end }}
