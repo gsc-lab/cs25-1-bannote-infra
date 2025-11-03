@@ -15,30 +15,18 @@
           "type": "object"
         },
         "securityContext": {
-          "type": [
-            "object",
-            "null"
-          ]
+          "type": ["object", "null"]
         },
         "containerSecurityContext": {
-          "type": [
-            "object",
-            "null"
-          ]
+          "type": ["object", "null"]
         },
         "kind": {
           "type": "string",
-          "enum": [
-            "Deployment",
-            "DaemonSet"
-          ]
+          "enum": ["Deployment", "DaemonSet"]
         },
         "annotations": {
           "additionalProperties": {
-            "type": [
-              "string",
-              "integer"
-            ]
+            "type": ["string", "integer"]
           },
           "type": "object"
         },
@@ -76,10 +64,10 @@
           "type": "object"
         },
         "minReadySeconds": {
-          "type": [ "null", "integer" ]
+          "type": ["null", "integer"]
         },
         "readinessProbe": {
-          "type": [ "null", "object" ]
+          "type": ["null", "object"]
         },
         "labels": {
           "type": "object"
@@ -108,10 +96,7 @@
           }
         },
         "replicaCount": {
-          "type": [
-            "integer",
-            "null"
-          ]
+          "type": ["integer", "null"]
         },
         "resources": {
           "type": "object",
@@ -162,15 +147,8 @@
           "type": "boolean"
         },
         "unprivilegedPort": {
-          "type": [
-            "string",
-            "boolean"
-          ],
-          "enum": [
-            true,
-            false,
-            "auto"
-          ]
+          "type": ["string", "boolean"],
+          "enum": [true, false, "auto"]
         },
         "service": {
           "type": "object",
@@ -190,20 +168,12 @@
             "ipFamilies": {
               "items": {
                 "type": "string",
-                "enum": [
-                  "IPv4",
-                  "IPv6"
-                ]
+                "enum": ["IPv4", "IPv6"]
               }
             },
             "ipFamilyPolicy": {
               "type": "string",
-              "enum": [
-                "",
-                "SingleStack",
-                "PreferDualStack",
-                "RequireDualStack"
-              ]
+              "enum": ["", "SingleStack", "PreferDualStack", "RequireDualStack"]
             },
             "ports": {
               "type": "array",
@@ -263,12 +233,7 @@
         },
         "imagePullPolicy": {
           "type": "string",
-          "enum": [
-            "",
-            "Always",
-            "IfNotPresent",
-            "Never"
-          ]
+          "enum": ["", "Always", "IfNotPresent", "Never"]
         },
         "imagePullSecrets": {
           "type": "array",
@@ -285,24 +250,14 @@
           "type": "object",
           "properties": {
             "minAvailable": {
-              "type": [
-                "integer",
-                "string"
-              ]
+              "type": ["integer", "string"]
             },
             "maxUnavailable": {
-              "type": [
-                "integer",
-                "string"
-              ]
+              "type": ["integer", "string"]
             },
             "unhealthyPodEvictionPolicy": {
               "type": "string",
-              "enum": [
-                "",
-                "IfHealthyBudget",
-                "AlwaysAllow"
-              ]
+              "enum": ["", "IfHealthyBudget", "AlwaysAllow"]
             }
           }
         },
@@ -340,6 +295,36 @@
             },
             "preStop": {
               "type": "object"
+            }
+          }
+        },
+        "gateway": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "name": { "type": "string" },
+            "namespace": { "type": "string" },
+            "selector": { "type": "object" },
+            "hosts": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "annotations": { "type": "object" },
+            "http": {
+              "type": "object",
+              "properties": {
+                "enabled": { "type": "boolean" },
+                "port": { "type": "integer" },
+                "httpsRedirect": { "type": "boolean" }
+              }
+            },
+            "https": {
+              "type": "object",
+              "properties": {
+                "enabled": { "type": "boolean" },
+                "port": { "type": "integer" },
+                "tls": { "type": "object" }
+              }
             }
           }
         }
