@@ -1,7 +1,7 @@
 image:
   repository: kyumin1227/bannote-studyroom-service
   pullPolicy: IfNotPresent
-  tag: "dev-8b5058a"
+  tag: "dev-ae8501f"
 # Environment variables
 env:
   GRPC_PORT: "9090"
