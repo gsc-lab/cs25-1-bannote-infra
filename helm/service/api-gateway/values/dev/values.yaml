@@ -1,4 +1,4 @@
 image:
   repository: kyumin1227/bannote-api-gateway
   pullPolicy: IfNotPresent
-  tag: "dev-f185567"
+  tag: "dev-c18e274"
