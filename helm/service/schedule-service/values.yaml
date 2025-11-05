@@ -138,6 +138,7 @@ env:
 secrets:
   DB_USERNAME: ""
   DB_PASSWORD: ""
+  SECRET_KEY_BASE: "" # Rails Production key
 
 # Rails Migration
 migration:
