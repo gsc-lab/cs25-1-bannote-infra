@@ -128,12 +128,18 @@ affinity: {}
 
 # Environment variables
 env:
+  RAILS_ENV: "production"
   GRPC_PORT: "9090"
-  DB_HOST: "mysql-user-service.mysql.svc.cluster.local"
+  DB_HOST: "mysql-schedule-service.mysql.svc.cluster.local"
   DB_PORT: "3306"
-  DB_NAME: "user_service_db"
+  DB_NAME: "schedule_service_db"
 
 # Secrets
 secrets:
   DB_USERNAME: ""
   DB_PASSWORD: ""
+
+# Rails Migration
+migration:
+  enabled: true
+  command: ["bundle", "exec", "rails", "db:migrate"]
