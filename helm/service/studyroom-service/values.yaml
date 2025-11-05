@@ -128,6 +128,7 @@ affinity: {}
 
 # Environment variables
 env:
+  RAILS_ENV: "production"
   GRPC_PORT: "9090"
   DB_HOST: "mysql-studyroom-service.mysql.svc.cluster.local"
   DB_PORT: "3306"
@@ -137,3 +138,9 @@ env:
 secrets:
   DB_USERNAME: ""
   DB_PASSWORD: ""
+  SECRET_KEY_BASE: "" # Rails Production key
+
+# Rails Migration
+migration:
+  enabled: true
+  command: ["bundle", "exec", "rails", "db:migrate"]
