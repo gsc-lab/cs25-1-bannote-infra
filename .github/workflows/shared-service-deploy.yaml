@@ -1,0 +1,139 @@
+name: Shared Service Deploy
+
+on:
+  workflow_call:
+    inputs:
+      service-name:
+        description: 'Service name (e.g., user-service, studyroom-service)'
+        required: true
+        type: string
+
+      docker-image-name:
+        description: 'Docker image name (default: bannote-{service-name})'
+        required: false
+        type: string
+
+      helm-values-path:
+        description: 'Helm values path (default: helm/service/{service-name}/values)'
+        required: false
+        type: string
+
+      dockerfile-path:
+        description: 'Dockerfile path (default: ./Dockerfile)'
+        required: false
+        type: string
+        default: './Dockerfile'
+
+      build-context:
+        description: 'Docker build context (default: .)'
+        required: false
+        type: string
+        default: '.'
+
+      enable-cache:
+        description: 'Enable Docker build cache'
+        required: false
+        type: boolean
+        default: true
+
+      timestamp-format:
+        description: 'Timestamp format (default: %Y%m%d%H%M%S)'
+        required: false
+        type: string
+        default: '%Y%m%d%H%M%S'
+
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+      GH_PAT:
+        required: true
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get timestamp, short commit SHA and branch
+        id: vars
+        run: |
+          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "BRANCH=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "TIMESTAMP=$(date -u +'${{ inputs.timestamp-format }}')" >> $GITHUB_OUTPUT
+          echo "IMAGE_NAME=${{ inputs.docker-image-name || format('bannote-{0}', inputs.service-name) }}" >> $GITHUB_OUTPUT
+          echo "HELM_PATH=${{ inputs.helm-values-path || format('helm/service/{0}/values', inputs.service-name) }}" >> $GITHUB_OUTPUT
+
+      - name: Set image tag
+        id: tag
+        run: |
+          TAG="${{ steps.vars.outputs.TIMESTAMP }}-${{ steps.vars.outputs.SHORT_SHA }}"
+          echo "TAG=$TAG" >> $GITHUB_OUTPUT
+          echo "FULL_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/${{ steps.vars.outputs.IMAGE_NAME }}:$TAG" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ inputs.build-context }}
+          file: ${{ inputs.dockerfile-path }}
+          push: true
+          tags: ${{ steps.tag.outputs.FULL_IMAGE }}
+          cache-from: ${{ inputs.enable-cache && format('type=registry,ref={0}/{1}:buildcache', secrets.DOCKERHUB_USERNAME, steps.vars.outputs.IMAGE_NAME) || '' }}
+          cache-to: ${{ inputs.enable-cache && format('type=registry,ref={0}/{1}:buildcache,mode=max', secrets.DOCKERHUB_USERNAME, steps.vars.outputs.IMAGE_NAME) || '' }}
+
+      - name: Image deployed
+        run: |
+          echo "🚀 Docker image pushed to Docker Hub!"
+          echo "📦 Image: ${{ steps.tag.outputs.FULL_IMAGE }}"
+          echo "🏷️  Tag: ${{ steps.tag.outputs.TAG }}"
+          echo "📅 Timestamp: ${{ steps.vars.outputs.TIMESTAMP }}"
+          echo "🔖 Commit: ${{ steps.vars.outputs.SHORT_SHA }}"
+
+      - name: Checkout infra repository
+        uses: actions/checkout@v4
+        with:
+          repository: gsc-lab/cs25-1-bannote-infra
+          token: ${{ secrets.GH_PAT }}
+          path: infra
+
+      - name: Update Helm values.yaml
+        run: |
+          cd infra
+          BRANCH="${{ steps.vars.outputs.BRANCH }}"
+          VALUES_FILE="${{ steps.vars.outputs.HELM_PATH }}/${BRANCH}/values.yaml"
+          NEW_TAG="${{ steps.tag.outputs.TAG }}"
+
+          # Install yq for YAML manipulation
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+          # Update tag in values.yaml
+          yq eval ".image.tag = \"$NEW_TAG\"" -i "$VALUES_FILE"
+
+          echo "✅ Updated $VALUES_FILE"
+          echo "✅ New tag: $NEW_TAG"
+
+      - name: Commit and push changes
+        run: |
+          cd infra
+          BRANCH="${{ steps.vars.outputs.BRANCH }}"
+          git config user.name "github-actions[${{ inputs.service-name }}]"
+          git config user.email "github-actions[${{ inputs.service-name }}]@users.noreply.github.com"
+
+          git add ${{ steps.vars.outputs.HELM_PATH }}/${BRANCH}/values.yaml
+          git commit -m "chore: update ${{ inputs.service-name }} ${BRANCH} image tag to ${{ steps.tag.outputs.TAG }}"
+          git push
+
+          echo "🚀 Infra repository updated successfully!"
