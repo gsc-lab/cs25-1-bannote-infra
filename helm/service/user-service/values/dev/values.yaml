@@ -1,7 +1,7 @@
 image:
   repository: kyumin1227/bannote-user-service
   pullPolicy: IfNotPresent
-  tag: "dev-7f8881a"
+  tag: "dev-d0580fc"
 # Environment variables
 env:
   GRPC_PORT: "9090"
