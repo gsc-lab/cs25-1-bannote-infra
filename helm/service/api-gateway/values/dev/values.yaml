@@ -1,7 +1,7 @@
 image:
   repository: kyumin1227/bannote-api-gateway
   pullPolicy: IfNotPresent
-  tag: "dev-5ae3303"
+  tag: "dev-4ca2e3d"
 env:
   SERVER_PORT: "8080"
   USER_SERVICE_ADDR: "user-service.user-service.svc.cluster.local:9090"
