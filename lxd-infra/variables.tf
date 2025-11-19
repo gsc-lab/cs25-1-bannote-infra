@@ -63,7 +63,7 @@ variable "clusters" {
     "bannote-dev-dev" = {
       name         = "bannote-dev-dev"
       image        = "ubuntu:22.04"
-      cpu_limit    = "4"
+      cpu_limit    = "6"
       memory_limit = "16GB"
       disk_size    = "30GB"
       base_port    = 9200
@@ -91,7 +91,8 @@ variable "common_ports" {
     { name = "prometheus-dashboard",    port = 30006, use_direct_mapping = false }, // 6
     { name = "grafana-dashboard",       port = 30007, use_direct_mapping = false }, // 7
     { name = "minio-api",               port = 30008, use_direct_mapping = false }, // 8
-    { name = "minio-dashboard",         port = 30009, use_direct_mapping = false }  // 9
+    { name = "minio-dashboard",         port = 30009, use_direct_mapping = false }, // 9
+    { name = "kafka-ui",                port = 30010, use_direct_mapping = false }  // 10
 
     # 지정 번호 할당 (listen = base_port + port)
     # listen: base_port + 80   (e.g., 8080)
