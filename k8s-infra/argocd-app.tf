@@ -502,6 +502,52 @@ resource "argocd_application" "mysql-studyroom-service" {
   ]
 }
 
+resource "argocd_application" "kafka" {
+  metadata {
+    name      = "kafka"
+    namespace = "argocd"
+  }
+
+  spec {
+    project = "infra"
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "kafka"
+    }
+
+    source {
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/kafka"
+
+      helm {
+        release_name = "kafka"
+        value_files  = [
+          "values.yaml",
+          "values/shared/values.yaml",
+          "secrets://values/shared/secrets.sops.yaml"
+        ]
+      }
+    }
+
+    sync_policy {
+      automated {
+        prune     = true
+        self_heal = true
+      }
+
+      sync_options = []
+    }
+  }
+
+  depends_on = [
+    kubernetes_namespace.kafka,
+    argocd_project.infra,
+    argocd_repository.infra_repo
+  ]
+}
+
 # ======================
 # Service Project Applications
 # ======================

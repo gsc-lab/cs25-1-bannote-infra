@@ -36,6 +36,10 @@ resource "argocd_project" "infra" {
       server    = "https://kubernetes.default.svc"
       namespace = "mysql"
     }
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "kafka"
+    }
 
     # 클러스터 리소스 생성 권한
     cluster_resource_whitelist {
