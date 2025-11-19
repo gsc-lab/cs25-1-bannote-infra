@@ -69,12 +69,14 @@ envs:
   ## @param envs.config Set of the environment variables to pass to Kafbat-UI
   config: {}
   ## @param envs.secretMappings The mapping of existing secret to env variable.
-  secretMappings: {}
+  secretMappings:
+    {}
     #ENV_NAME:
     #  name: kubernetes-secret-name
     #  keyName: kubernetes-secret-key
   ## @param envs.configMappings  The mapping of configmap and keyName to get env variable.
-  configMappings: {}
+  configMappings:
+    {}
     #ENV_NAME:
     #  name: kubernetes-configmap-name
     #  keyName: kubernetes-configmap-key
@@ -233,7 +235,6 @@ ingress:
   ## NOTE: You may need to set this to '/*' in order to use this with ALB ingress controllers
   ##
   path: "/"
-
 
   ## @param ingress.pathType Ingress path type
   pathType: "Prefix"

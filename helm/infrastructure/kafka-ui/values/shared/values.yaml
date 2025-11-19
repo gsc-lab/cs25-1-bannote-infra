@@ -1,0 +1,16 @@
+yamlApplicationConfig:
+  kafka:
+    clusters:
+      - name: kafka
+        bootstrapServers: kafka.kafka.svc.cluster.local:9092
+  auth:
+    type: disabled
+  management:
+    health:
+      ldap:
+        enabled: false
+
+service:
+  type: NodePort
+  port: 80
+  nodePort: 30010
