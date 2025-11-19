@@ -314,6 +314,53 @@ resource "argocd_application" "kiali" {
   ]
 }
 
+resource "argocd_application" "kafka-ui" {
+  metadata {
+    name      = "kafka-ui"
+    namespace = "argocd"
+  }
+
+  spec {
+    project = "infra"
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "kafka"
+    }
+
+    source {
+      repo_url        = local.github_repo_url
+      target_revision = local.github_revision
+      path            = "helm/infrastructure/kafka-ui"
+
+      helm {
+        release_name = "kafka-ui"
+        value_files  = [
+          "values.yaml",
+          "values/shared/values.yaml",
+          "secrets://values/shared/secrets.sops.yaml"
+        ]
+      }
+    }
+
+    sync_policy {
+      automated {
+        prune     = true
+        self_heal = true
+      }
+
+      sync_options = []
+    }
+  }
+
+  depends_on = [
+    kubernetes_namespace.kafka,
+    argocd_project.infra,
+    argocd_repository.infra_repo,
+    argocd_application.kafka
+  ]
+}
+
 # ======================
 # Storage
 # ======================
