@@ -32,6 +32,17 @@ resource "kubernetes_namespace" "mysql" {
   }
 }
 
+# Kafka Namespace - Kafka & Kafka-ui 네임스페이스
+resource "kubernetes_namespace" "kafka" {
+  metadata {
+    name = "kafka"
+    labels = {
+      "name" = "kafka"
+      "istio-injection" = "disabled"
+    }
+  }
+}
+
 # API Gateway - API Gateway 서비스 전용 네임스페이스
 resource "kubernetes_namespace" "api-gateway" {
   metadata {

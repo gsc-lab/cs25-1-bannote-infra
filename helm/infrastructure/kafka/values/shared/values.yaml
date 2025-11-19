@@ -1,0 +1,7 @@
+# TODO Bitnami 무료 지원 종료로 인해 일시적으로 legacy 이미지 이용
+image:
+  registry: docker.io
+  repository: bitnamilegacy/kafka
+  tag: 4.0.0-debian-12-r10
+  digest: ""
+  pullPolicy: IfNotPresent
