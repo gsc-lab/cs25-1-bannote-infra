@@ -1,7 +1,7 @@
 image:
   repository: kyumin1227/bannote-schedule-service
   pullPolicy: IfNotPresent
-  tag: "20251208123223-2d79990"
+  tag: "20251214122710-c0465fb"
 # Environment variables
 env:
   GRPC_PORT: "9090"
